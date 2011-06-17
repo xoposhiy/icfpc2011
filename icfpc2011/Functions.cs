@@ -48,7 +48,7 @@ namespace Icfpc2011
 			throw new Exception("Unknown function " + s);
 		}
 
-		public static readonly Num Zero = new Num(0);
+		public static readonly Zero Zero = new Zero();
 		public static readonly I I = new I();
 		public static readonly Succ Succ = new Succ();
 		public static readonly Dbl Dbl = new Dbl();
@@ -63,6 +63,18 @@ namespace Icfpc2011
 		public static readonly Copy Copy = new Copy();
 		public static readonly Revive Revive = new Revive();
 		public static readonly Zombie Zombie = new Zombie();
+	}
+
+	public class Zero : Num
+	{
+		public Zero() : base(0)
+		{
+		}
+		
+		public override string ToString()
+		{
+			return "zero";
+		}
 	}
 
 	public class I : Function
@@ -327,7 +339,7 @@ namespace Icfpc2011
 	public class Application : Value
 	{
 		public Application(Value f, Value arg)
-			: base(f.ArgsNeeded - 1, () => string.Format("({0} {1})", f, arg))
+			: base(f.ArgsNeeded - 1, () => string.Format("{0}({1})", f, arg))
 		{
 			this.f = f;
 			this.arg = arg;
@@ -389,6 +401,4 @@ namespace Icfpc2011
 		public abstract Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone);
 
 	}
-
-
 }

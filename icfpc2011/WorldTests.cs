@@ -1,5 +1,8 @@
 using System;
+using System.IO;
+using System.Text;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Icfpc2011
 {
@@ -125,6 +128,45 @@ S 0
 0 I
 0 zero";
 			Run(s);
+		}
+
+
+		[Test]
+		public void UberTest()
+		{
+			var r = new Random(321654987);
+			var cmds = Funcs.allFuncs.Select(f => f == Funcs.Zero ? "zero" : f.ToString()).ToArray();
+			var inp = new StringBuilder();
+			var inp2 = new StringBuilder();
+			foreach (var cmd in cmds)
+			{
+				Console.WriteLine(cmd);
+			}
+			var ourOut = new StringBuilder();
+			for (int i = 0; i < 1000; i++)
+			{
+				var cmd = cmds[r.Next(cmds.Length-1)];
+				var slot = r.Next(256);
+				Move m;
+				if (r.Next(2) == 1)
+				{
+					inp.AppendFormat("1\n{0}\n{1}\n", cmd, slot);
+					inp2.AppendFormat("{0} {1}\r\n", cmd, slot);
+				}
+				else
+				{
+					inp.AppendFormat("2\n{0}\n{1}\n", slot, cmd);
+					inp2.AppendFormat("{0} {1}\r\n", slot, cmd);
+				}
+				ourOut.AppendLine(world.ToString(true));
+			}
+			Console.WriteLine();
+			Console.WriteLine(world.ToString(true));
+			File.WriteAllText(@"..\..\..\tests\nozombies.txt", inp.ToString());
+			var contents = inp2.ToString();
+			File.WriteAllText(@"..\..\..\tests\inp_my.txt", contents);
+			Run(contents);
+			File.WriteAllText(@"..\..\..\tests\out_my.txt", world.ToString(true));
 		}
 
 		private void Run(string s, bool only = true)

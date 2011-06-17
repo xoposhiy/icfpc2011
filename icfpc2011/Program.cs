@@ -32,7 +32,7 @@ namespace Icfpc2011
 			for (int i = 0; i <= 255; i++)
 			{
 				if (slots[i].vitality != 10000 || slots[i].value != Funcs.I)
-					sb.AppendFormat("{0}=({1},{2})\r\n", i, slots[i].vitality, slots[i].value);
+					sb.AppendFormat("{0}={{{1},{2}}}\r\n", i, slots[i].vitality, slots[i].value);
 			}
 			string s = sb.ToString();
 			return s.TrimEnd();
@@ -62,7 +62,7 @@ namespace Icfpc2011
 			catch (GameError e)
 			{
 				Log(e.Message);
-				me[resultSlot].value = new I();
+				me[resultSlot].value = Funcs.I;
 			}
 			return me[resultSlot].value;
 		}
