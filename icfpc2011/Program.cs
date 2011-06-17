@@ -95,6 +95,14 @@ namespace Icfpc2011
 
 	public class Move
 	{
+		public static Move Parse(string line)
+		{
+			var parts = line.Split(' ');
+			if (parts[0][0] >= '0' && parts[0][0] <= '9')
+				return new Move(Int32.Parse(parts[0]), Funcs.Parse(parts[1]));
+			return new Move(Funcs.Parse(parts[0]), Int32.Parse(parts[1]));
+		}
+
 		public Move(int slot, Value card)
 		{
 			this.slot = slot;
@@ -114,7 +122,7 @@ namespace Icfpc2011
 		public Value card;
 		public override string ToString()
 		{
-			return card_to_slot ? (card + " to " + slot) : (slot + " to " + card);
+			return card_to_slot ? (card + " [" + slot + "]") : (slot + " [" + card + "]");
 		}
 	}
 
@@ -132,34 +140,16 @@ namespace Icfpc2011
 			//else RunBattle();
 		}
 
-		private static Move ReadMove(bool interactive)
+		private static Move ReadMoveInteractive()
 		{
 			try
 			{
-				if (interactive) Console.WriteLine("(1) apply card to slot, or (2) apply slot to card?");
-				var card_to_slot = Console.ReadLine() == "1";
-				string card, slot;
-				if (card_to_slot)
-				{
-					if (interactive) Console.WriteLine("card name?");
-					card = Console.ReadLine();
-					if (interactive) Console.WriteLine("slot no?");
-					slot = Console.ReadLine() ?? "";
-					return new Move(Funcs.Parse(card), int.Parse(slot));
-				}
-				else
-				{
-					if (interactive) Console.WriteLine("slot no?");
-					slot = Console.ReadLine() ?? "";
-					if (interactive) Console.WriteLine("card name?");
-					card = Console.ReadLine();
-					return new Move(int.Parse(slot), Funcs.Parse(card));
-				}
+				return Move.Parse(Console.ReadLine());
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
-				return ReadMove(interactive);
+				return ReadMoveInteractive();
 			}
 		}
 
@@ -169,10 +159,10 @@ namespace Icfpc2011
 			var world = new World();
 			while (true)
 			{
-				var move = ReadMove(true);
+				var move = ReadMoveInteractive();
 				Console.WriteLine(move.ToString());
 				world.MyTurn(move);
-				Console.WriteLine(world.ToString());
+				Console.WriteLine(world.ToString(true));
 			}
 		}
 	}
