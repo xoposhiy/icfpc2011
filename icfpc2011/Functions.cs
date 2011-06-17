@@ -149,7 +149,6 @@ namespace Icfpc2011
 			var left = new Application(f, x).Reduce(me, opponent, ref applicationsDone);
 			var right = new Application(g, x).Reduce(me, opponent, ref applicationsDone);
 			var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone);
-			if (applicationsDone >= 1000) throw new GameError("Too many applications");
 			return res;
 		}
 	}
@@ -366,8 +365,12 @@ namespace Icfpc2011
 
 		public readonly int num;
 	}
+
 	public abstract class Function : Value
 	{
+		// Порядок применения функций. Для отладки.
+		public static StringBuilder r = new StringBuilder();
+
 		protected Function(int argsNeeded, string name)
 			: base(argsNeeded, () => name)
 		{
@@ -377,8 +380,9 @@ namespace Icfpc2011
 		{
 			if (args.Length != ArgsNeeded) throw new Exception("Bug in code!");
 			if (applicationsDone >= 1000) throw new GameError("Too many applications");
-			var res = DoReduce(me, opponent, args, ref applicationsDone);
 			applicationsDone++;
+			//r.Append(" " + ToString());
+			var res = DoReduce(me, opponent, args, ref applicationsDone);
 			return res;
 		}
 

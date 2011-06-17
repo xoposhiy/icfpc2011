@@ -98,13 +98,30 @@ S 0
 			Run(s);
 			Console.WriteLine(world);
 		}
-		
+
 		[Test]
 		public void TestLoop()
 		{
 			string s = @"
 0 S
 0 get
+0 I
+0 zero";
+			Run(s);
+		}
+
+		[Test]
+		public void TestLoop2()
+		{
+			string s = @"
+0 get
+S 0
+K 0
+S 0
+K 0
+S 0
+0 S
+0 inc
 0 I
 0 zero";
 			Run(s);
@@ -127,6 +144,8 @@ S 0
 				}
 				turn = !turn;
 			}
+			//Console.WriteLine(Function.r);
+			Console.WriteLine(world);
 		}
 	}
 }
