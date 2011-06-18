@@ -2,28 +2,17 @@
 
 namespace Contest
 {
-	internal class Program
+	public class Program
 	{
-		private static void MainLame(string[] args)
-		{
-			while (true)
-			{
-				Console.WriteLine("1");
-				Console.WriteLine("I");
-				Console.WriteLine("0");
-			}
-		}
-
-
-		private static void Main(string[] args)
+		public static void Main(string[] args)
 		{
 			if (args.Length == 0) RunInteractive();
 			var player = new Player();
 			if (args[0] == "1") player.HisMove(ReadMove());
-			foreach (Move m in player.MyMoves())
+			foreach (var m in player.MyMoves())
 			{
 				WriteMove(m);
-				Move hisMove = ReadMove();
+				var hisMove = ReadMove();
 				if (hisMove == null) break;
 				player.HisMove(hisMove);
 			}
@@ -44,8 +33,8 @@ namespace Contest
 		private static Move ReadMove()
 		{
 			Console.ReadLine();
-			string left = Console.ReadLine();
-			string right = Console.ReadLine();
+			var left = Console.ReadLine();
+			var right = Console.ReadLine();
 			if (left == null || right == null) return null;
 			return Move.Parse(left + " " + right);
 		}
@@ -62,7 +51,6 @@ namespace Contest
 				return ReadMoveInteractive();
 			}
 		}
-
 
 		private static void RunInteractive()
 		{

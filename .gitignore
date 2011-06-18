@@ -1,6 +1,8 @@
-
 /player/bin
 /player/obj
 /Contest.suo
 /_ReSharper.Contest
-/Contest.6.0.ReSharper.user
+/*.ReSharper.user
+/submission/src/*
+/submission/nunit*
+/submission/player*
