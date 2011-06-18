@@ -52,7 +52,7 @@ namespace Contest
 
 		public IEnumerable<Move> ToMoves(string s)
 		{
-			var cmds = s.Split(new[]{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+			var cmds = s.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 			return cmds.Select(Move.Parse);
 		}
 
@@ -100,7 +100,7 @@ S 0
 				var bootstrapping = ToMoves(killemallBootstrap + LoopSuffix);
 				foreach (var move in bootstrapping)
 					yield return move;
-				while (w.opponent[255-targetSlot].vitality > 0)
+				while (w.opponent[255 - targetSlot].vitality > 0)
 				{
 					foreach (var move in ToMoves(Fire))
 						yield return move;
@@ -158,11 +158,11 @@ S 0
 			{
 				foreach (Move move in p.KillEmAll())
 				{
-					if (++idx % 200 == 0)
-					{
-						yield return MakeMyTurn(new Move(4, Funcs.Revive));
-						yield return MakeMyTurn(new Move(4, Funcs.Zero));
-					}
+					//if (++idx % 200 == 0)
+					//{
+					//    yield return MakeMyTurn(new Move(4, Funcs.Revive));
+					//    yield return MakeMyTurn(new Move(4, Funcs.Zero));
+					//}
 					yield return MakeMyTurn(move);
 				}
 			}
