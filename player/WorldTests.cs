@@ -4,7 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using System.Linq;
 
-namespace Icfpc2011
+namespace Contest
 {
 	[TestFixture]
 	public class WorldTests

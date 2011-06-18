@@ -1,12 +1,62 @@
-﻿using System;
+using System;
 using System.Text;
 
-namespace Icfpc2011
+namespace Contest
 {
+	public class GameError : Exception
+	{
+		public GameError(string message)
+			: base(message)
+		{
+
+		}
+	}
+
+	public class Move
+	{
+		public static Move Parse(string line)
+		{
+			var parts = line.Split(' ');
+			if (parts[0][0] >= '0' && parts[0][0] <= '9')
+				return new Move(Int32.Parse(parts[0]), Funcs.Parse(parts[1]));
+			return new Move(Funcs.Parse(parts[0]), Int32.Parse(parts[1]));
+		}
+
+		public Move(int slot, Value card)
+		{
+			this.slot = slot;
+			this.card = card;
+			card_to_slot = false;
+		}
+
+		public Move(Value card, int slot)
+		{
+			this.slot = slot;
+			this.card = card;
+			card_to_slot = true;
+		}
+
+		public bool card_to_slot;
+		public int slot;
+		public Value card;
+		public override string ToString()
+		{
+			return card_to_slot ? (card + " [" + slot + "]") : (slot + " [" + card + "]");
+		}
+	}
+
+	public class Slot
+	{
+		public int vitality;
+		public Value value;
+	}
+
 	public class World
 	{
 		public Slot[] opponent;
+		//public bool opponentHasZombies = false;
 		public Slot[] me;
+		//public bool IHaveZombies = false;
 		public int turnNumber;
 
 		public World()
@@ -80,90 +130,6 @@ namespace Icfpc2011
 		public string ToString(bool isMe)
 		{
 			return isMe ? SlotsToString(me) : SlotsToString(opponent);
-		}
-	}
-
-
-	public class GameError : Exception
-	{
-		public GameError(string message)
-			:base(message)
-		{
-			
-		}
-	}
-
-	public class Move
-	{
-		public static Move Parse(string line)
-		{
-			var parts = line.Split(' ');
-			if (parts[0][0] >= '0' && parts[0][0] <= '9')
-				return new Move(Int32.Parse(parts[0]), Funcs.Parse(parts[1]));
-			return new Move(Funcs.Parse(parts[0]), Int32.Parse(parts[1]));
-		}
-
-		public Move(int slot, Value card)
-		{
-			this.slot = slot;
-			this.card = card;
-			card_to_slot = false;
-		}
-
-		public Move(Value card, int slot)
-		{
-			this.slot = slot;
-			this.card = card;
-			card_to_slot = true;
-		}
-
-		public bool card_to_slot;
-		public int slot;
-		public Value card;
-		public override string ToString()
-		{
-			return card_to_slot ? (card + " [" + slot + "]") : (slot + " [" + card + "]");
-		}
-	}
-
-	public class Slot
-	{
-		public int vitality;
-		public Value value;
-	}
-
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			if (args.Length == 0) RunInteractive();
-			//else RunBattle();
-		}
-
-		private static Move ReadMoveInteractive()
-		{
-			try
-			{
-				return Move.Parse(Console.ReadLine());
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-				return ReadMoveInteractive();
-			}
-		}
-
-
-		private static void RunInteractive()
-		{
-			var world = new World();
-			while (true)
-			{
-				var move = ReadMoveInteractive();
-				Console.WriteLine(move.ToString());
-				world.MyTurn(move);
-				Console.WriteLine(world.ToString(true));
-			}
 		}
 	}
 }
