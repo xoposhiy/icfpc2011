@@ -84,7 +84,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			return args.First();
 		}
@@ -97,7 +97,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var arg = args.First();
 			if (arg is Num) return new Num(Math.Min(((Num)arg).num + 1, 65535));
@@ -112,7 +112,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var arg = args.First();
 			if (arg is Num) return new Num(Math.Min(2 * ((Num)arg).num, 65535));
@@ -127,7 +127,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			return me[args.First().AsSlot()].value;
 		}
@@ -140,7 +140,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			return Funcs.I;
 		}
@@ -153,14 +153,14 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var f = args[0];
 			var g = args[1];
 			var x = args[2];
-			var left = new Application(f, x).Reduce(me, opponent, ref applicationsDone);
-			var right = new Application(g, x).Reduce(me, opponent, ref applicationsDone);
-			var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone);
+			var left = new Application(f, x).Reduce(me, opponent, ref applicationsDone, zombieMode);
+			var right = new Application(g, x).Reduce(me, opponent, ref applicationsDone, zombieMode);
+			var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone, zombieMode);
 			return res;
 		}
 	}
@@ -172,13 +172,12 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			return args[0];
 		}
 	}
 	
-	//TODO Zombie!
 	public class Inc : Function
 	{
 		public Inc()
@@ -186,12 +185,20 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var slot = args.First().AsSlot();
 			var vitality = me[slot].vitality;
-			if (vitality > 0 || vitality < 65535)
-				me[slot].vitality = vitality + 1;
+			if (!zombieMode)
+			{
+				if (vitality > 0 || vitality < 65535)
+					me[slot].vitality = vitality + 1;
+			}
+			else
+			{
+				if (vitality > 0)
+					me[slot].vitality = vitality - 1;
+			}
 			return Funcs.I;
 		}
 	}
@@ -203,12 +210,20 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var slot = 255 - args.First().AsSlot();
 			var vitality = opponent[slot].vitality;
-			if (vitality > 0)
-				opponent[slot].vitality = vitality - 1;
+			if (!zombieMode)
+			{
+				if (vitality > 0)
+					opponent[slot].vitality = vitality - 1;
+			}
+			else
+			{
+				if (vitality > 0 || vitality < 65535)
+					opponent[slot].vitality = vitality + 1;
+			}
 			return Funcs.I;
 		}
 	}
@@ -220,7 +235,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var proponentSlot = args[0].AsSlot();
 			var opponentSlot = 255 - args[1].AsSlot();
@@ -229,8 +244,16 @@ namespace Contest
 			me[proponentSlot].vitality -= n;
 			if (opponent[opponentSlot].vitality > 0)
 			{
-				opponent[opponentSlot].vitality -= n*9/10;
-				if (opponent[opponentSlot].vitality < 0) opponent[opponentSlot].vitality = 0;
+				if (!zombieMode)
+				{
+					opponent[opponentSlot].vitality -= n*9/10;
+					if (opponent[opponentSlot].vitality < 0) opponent[opponentSlot].vitality = 0;
+				}
+				else
+				{
+					opponent[opponentSlot].vitality += n * 9 / 10;
+					if (opponent[opponentSlot].vitality > 65535) opponent[opponentSlot].vitality = 65535;
+				}
 			}
 			return Funcs.I;
 		}
@@ -243,7 +266,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var fromSlot = args[0].AsSlot();
 			var toSlot = args[1].AsSlot();
@@ -252,8 +275,16 @@ namespace Contest
 			me[fromSlot].vitality -= n;
 			if (me[toSlot].vitality > 0)
 			{
-				me[toSlot].vitality += n * 11 / 10;
-				if (me[toSlot].vitality > 65535) me[toSlot].vitality = 65535;
+				if (!zombieMode)
+				{
+					me[toSlot].vitality += n*11/10;
+					if (me[toSlot].vitality > 65535) me[toSlot].vitality = 65535;
+				}
+				else
+				{
+					me[toSlot].vitality -= n * 11 / 10;
+					if (me[toSlot].vitality < 0) me[toSlot].vitality = 0;
+				}
 			}
 			return Funcs.I;
 		}
@@ -266,7 +297,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			return opponent[args[0].AsSlot()].value;
 		}
@@ -279,7 +310,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var proponentSlot = args[0].AsSlot();
 			if (me[proponentSlot].vitality <= 0)
@@ -287,6 +318,7 @@ namespace Contest
 			return Funcs.I;
 		}
 	}
+
 	public class Zombie : Function
 	{
 		public Zombie()
@@ -294,7 +326,7 @@ namespace Contest
 		{
 		}
 
-		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var opponentSlot = 255 - args[0].AsSlot();
 			var x = args[0];
@@ -348,7 +380,7 @@ namespace Contest
 		public readonly Value f;
 		public readonly Value arg;
 
-		public Value Reduce(Slot[] me, Slot[] opponent, ref int applicationsDone)
+		public Value Reduce(Slot[] me, Slot[] opponent, ref int applicationsDone, bool zombieMode)
 		{
 			if (ArgsNeeded > 0) return this;
 			var fun = f;
@@ -360,7 +392,7 @@ namespace Contest
 				fun = app.f;
 			}
 			if (!(fun is Function)) throw new GameError("cant apply not a function " + fun);
-			var res = ((Function)fun).Reduce(me, opponent, args.ToArray(), ref applicationsDone);
+			var res = ((Function)fun).Reduce(me, opponent, args.ToArray(), ref applicationsDone, zombieMode);
 			if (!(res is Num) && res.ArgsNeeded == 0) throw new Exception("Bug!");
 			return res;
 		}
@@ -388,17 +420,17 @@ namespace Contest
 		{
 		}
 
-		public Value Reduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone)
+		public Value Reduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			if (args.Length != ArgsNeeded) throw new Exception("Bug in code!");
 			if (applicationsDone >= 1000) throw new GameError("Too many applications");
 			applicationsDone++;
 			//r.Append(" " + ToString());
-			var res = DoReduce(me, opponent, args, ref applicationsDone);
+			var res = DoReduce(me, opponent, args, ref applicationsDone, zombieMode);
 			return res;
 		}
 
-		public abstract Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone);
+		public abstract Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode);
 
 	}
 }

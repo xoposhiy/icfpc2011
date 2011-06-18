@@ -61,6 +61,8 @@ namespace Contest
 	{
 		public int vitality;
 		public Value value;
+
+		public bool IsZombie { get { return vitality == -1; } }
 	}
 
 	public class World
@@ -114,11 +116,12 @@ namespace Contest
 
 		private static Value Apply(Slot[] me, Slot[] opponent, Value left, Value right, int resultSlot)
 		{
+			RessurectZombies(me, opponent);
 			try
 			{
 				if (left.ArgsNeeded <= 0) throw new GameError("incorrect application: " + left + " " + right);
 				var applicationsDone = 0;
-				var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone);
+				var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone, false);
 				me[resultSlot].value = res;
 			}
 			catch (GameError e)
@@ -127,6 +130,28 @@ namespace Contest
 				me[resultSlot].value = Funcs.I;
 			}
 			return me[resultSlot].value;
+		}
+
+		private static void RessurectZombies(Slot[] me, Slot[] opponent)
+		{
+			for (int mySlot = 0; mySlot <= 255; mySlot++)
+			{
+				var currentMySlot = me[mySlot];
+				if (!currentMySlot.IsZombie) continue;
+				try
+				{
+					var zobieFunc = currentMySlot.value;
+					if (zobieFunc.ArgsNeeded <= 0) throw new GameError("incorrect application of zombie func: " + zobieFunc);
+					var applicationsDone = 0;
+					new Application(zobieFunc, Funcs.I).Reduce(me, opponent, ref applicationsDone, true);
+				}
+				catch (GameError e)
+				{
+					Log(e.Message);
+				}
+				currentMySlot.vitality = 0;
+				currentMySlot.value = Funcs.I;
+			}
 		}
 
 		private static void Log(string message)
