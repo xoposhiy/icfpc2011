@@ -121,6 +121,7 @@ namespace Contest
 			RessurectZombies(me, opponent);
 			try
 			{
+				if (me[resultSlot].vitality <= 0) throw new GameError("result slot is dead:" + resultSlot);
 				if (left.ArgsNeeded <= 0) throw new GameError("incorrect application: " + left + " " + right);
 				var applicationsDone = 0;
 				var res = new Application(left, right).Reduce(me, opponent, ref applicationsDone, false);
