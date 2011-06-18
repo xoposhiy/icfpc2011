@@ -19,17 +19,7 @@ namespace Contest
 			plan = "";
 		}
 
-		[Test]
-		public void Test()
-		{
-			for (int i = 0; i < Funcs.allFuncs.Length; i++)
-			{
-				var res = world.MyTurn(new Move(i, Funcs.allFuncs[i]));
-				Assert.AreEqual(Funcs.allFuncs[i], res);
-			}
-			Console.WriteLine(world);
-		}
-		
+	
 		[Test]
 		public void TestPlan()
 		{

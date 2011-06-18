@@ -329,7 +329,7 @@ namespace Contest
 		public override Value DoReduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			var opponentSlot = 255 - args[0].AsSlot();
-			var x = args[0];
+			var x = args[1];
 			if (opponent[opponentSlot].vitality > 0) throw new GameError("Slot is not dead! " + this);
 			opponent[opponentSlot].value = x;
 			opponent[opponentSlot].vitality = -1;

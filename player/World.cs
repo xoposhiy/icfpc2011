@@ -102,19 +102,21 @@ namespace Contest
 			return s.TrimEnd();
 		}
 
-		public Value MyTurn(Move move)
+		public void MyTurn(Move move)
 		{
-			return RegisterMove(me, opponent, move);
+			RegisterMove(me, opponent, move);
 		}
 
-		public static Value RegisterMove(Slot[] me, Slot[] opponent, Move move)
+		public static void RegisterMove(Slot[] me, Slot[] opponent, Move move)
 		{
+			if (move.slot < 0 || move.slot > 255) return;
 			if (move.card_to_slot)
-				return Apply(me, opponent, move.card, me[move.slot].value, move.slot);
-			return Apply(me, opponent, me[move.slot].value, move.card, move.slot);
+				Apply(me, opponent, move.card, me[move.slot].value, move.slot);
+			else
+				Apply(me, opponent, me[move.slot].value, move.card, move.slot);
 		}
 
-		private static Value Apply(Slot[] me, Slot[] opponent, Value left, Value right, int resultSlot)
+		private static void Apply(Slot[] me, Slot[] opponent, Value left, Value right, int resultSlot)
 		{
 			RessurectZombies(me, opponent);
 			try
@@ -129,7 +131,6 @@ namespace Contest
 				Log(e.Message);
 				me[resultSlot].value = Funcs.I;
 			}
-			return me[resultSlot].value;
 		}
 
 		private static void RessurectZombies(Slot[] me, Slot[] opponent)
@@ -159,14 +160,32 @@ namespace Contest
 			//Console.WriteLine(message);
 		}
 
-		public Value OpponentTurn(Move move)
+		public void OpponentTurn(Move move)
 		{
-			return RegisterMove(opponent, me, move);
+			RegisterMove(opponent, me, move);
 		}
 
 		public string ToString(bool isMe)
 		{
 			return isMe ? SlotsToString(me) : SlotsToString(opponent);
+		}
+
+
+		public void RunMyPlan(string s)
+		{
+			var lines = s.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+			foreach (var line in lines)
+			{
+				MyTurn(Move.Parse(line));
+				Console.WriteLine(ToString());
+			}
+		}
+
+		public string RunMyForm(int slot, string form)
+		{
+			var plan = ThePlan.MakePlan(slot, form);
+			RunMyPlan(plan);
+			return plan;
 		}
 	}
 }
