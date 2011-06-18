@@ -191,7 +191,7 @@ namespace Contest
 			var vitality = me[slot].vitality;
 			if (!zombieMode)
 			{
-				if (vitality > 0 || vitality < 65535)
+				if (vitality > 0 && vitality < 65535)
 					me[slot].vitality = vitality + 1;
 			}
 			else
@@ -221,7 +221,7 @@ namespace Contest
 			}
 			else
 			{
-				if (vitality > 0 || vitality < 65535)
+				if (vitality > 0 && vitality < 65535)
 					opponent[slot].vitality = vitality + 1;
 			}
 			return Funcs.I;
