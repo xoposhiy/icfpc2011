@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Contest
 {
@@ -48,10 +50,92 @@ namespace Contest
 			yield return new Move(0, Zero);
 		}
 
-		public IEnumerable<Move> AttackAlive()
+		public IEnumerable<Move> ToMoves(string s)
 		{
-			yield break;
+			var cmds = s.Split(new[]{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+			return cmds.Select(Move.Parse);
 		}
+
+		public static string killemallBootstrap = @"
+put 0
+0 S
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+0 dec
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+K 0
+S 0
+0 get
+K 0
+S 0
+0 I
+K 0
+S 0
+0 succ
+K 0
+S 0
+0 I
+K 0
+S 0
+0 succ
+K 0
+S 0
+0 I
+0 zero
+";
+		public IEnumerable<Move> KillEmAll()
+		{
+			var targetSlot = 0;
+			yield return new Move(2, Zero);
+			while (true)
+			{
+				var bootstrapping = ToMoves(killemallBootstrap + LoopSuffix);
+				foreach (var move in bootstrapping)
+					yield return move;
+				while (w.opponent[255-targetSlot].vitality > 0)
+				{
+					foreach (var move in ToMoves(Fire))
+						yield return move;
+					Log(w.ToString(false));
+				}
+				targetSlot++;
+				yield return new Move(Succ, 2);
+			}
+		}
+
+		private void Log(string message)
+		{
+			//File.AppendAllText("world.txt", message+ Environment.NewLine);
+		}
+
+		public static string Fire = @"
+1 zero
+get 1
+1 zero
+";
+
+		public static string LoopSuffix = @"
+K 0
+S 0
+0 I
+S 0
+K 0
+S 0
+K 0
+S 0
+0 S
+0 get
+0 I
+";
 	}
 
 	public class Player
@@ -73,7 +157,11 @@ namespace Contest
 		{
 			while (true)
 			{
-				foreach (Move move in p.AttackMany()) yield return move;
+				foreach (Move move in p.KillEmAll())
+				{
+					w.MyTurn(move);
+					yield return move;
+				}
 			}
 		}
 

@@ -57,7 +57,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>rem taskkill /IM player.exe /f || exit 0</PreBuildEvent>
+    <PreBuildEvent>taskkill /IM player.exe /f || exit 0</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>erase $(SolutionDir)submission\src /Q

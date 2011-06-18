@@ -15,6 +15,7 @@ namespace Contest
 				var hisMove = ReadMove();
 				if (hisMove == null) break;
 				player.HisMove(hisMove);
+
 			}
 		}
 

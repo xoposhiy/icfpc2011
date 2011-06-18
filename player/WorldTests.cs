@@ -33,13 +33,58 @@ namespace Contest
 		[Test]
 		public void TestPlan()
 		{
-			Run(ThePlan.MakePlan(0, "S( K ( get)) ( K ( zero ) )") + "\r\n0 zero");
+			Console.WriteLine(ThePlan.MakePlan(0, "S( K ( dec)) ( K ( get (succ (succ(zero))) ) )"));
 		}
 		
 		[Test]
 		public void T()
 		{
-			Console.WriteLine(ThePlan.MakePlan(0, "S(K(dec))(K(get(succ(succ(zero)))))"));
+			Console.WriteLine(ThePlan.MakePlan(0, "S(K(dec))(K(zero))"));
+		}
+		[Test]
+		public void T2()
+		{
+			Run(@"
+2 zero
+0 S
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+0 dec
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+0 zero
+K 0
+S 0
+0 I
+S 0
+K 0
+S 0
+K 0
+S 0
+0 S
+0 get
+0 I
+1 zero
+get 1
+1 zero
+1 zero
+get 1
+1 zero
+1 zero
+get 1
+1 zero
+1 zero
+get 1
+1 zero
+");
 		}
 
 		public void Repeat(string payload, int count, int slotNo)
