@@ -110,6 +110,62 @@ S 0
 			}
 		}
 
+		public IEnumerable<Move> TaranEmAll()
+		{
+				var moves = ToMoves(
+					Repeat("dec", 330, 0) +
+					@"
+K 0
+S 0
+
+K 0
+S 0
+K 0
+S 0
+0 S
+K 0
+S 0
+0 I
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+0 get
+K 0
+S 0
+0 I
+0 succ
+S 0
+0 get
+");
+				foreach (var move in moves)
+					yield return move;
+			yield return new Move(1, Zero);
+			for (var targetSlot = 0; targetSlot <= 255; targetSlot++)
+			{
+				while (w.opponent[255 - targetSlot].vitality > 0)
+					yield return new Move(0, Zero);
+				yield return new Move(Succ, 1);
+			}
+		}
+
+		public string Repeat(string payload, int count, int slotNo)
+		{
+			string s = "";
+			Action<string> addPlan = cmd => { s = s + cmd + Environment.NewLine; };
+			addPlan(slotNo + " " + payload);
+			addPlan("S " + slotNo);
+			addPlan(slotNo + " put");
+			for (int i = 1; i < count; i++)
+			{
+				addPlan("S " + slotNo);
+				addPlan(slotNo + " " + payload);
+			}
+			return s;
+		}
+
 		private void Log(string message)
 		{
 			//File.AppendAllText("world.txt", message+ Environment.NewLine);
@@ -156,7 +212,7 @@ S 0
 			int idx = 0;
 			while (true)
 			{
-				foreach (Move move in p.KillEmAll())
+				foreach (Move move in p.TaranEmAll())
 				{
 					//if (++idx % 200 == 0)
 					//{

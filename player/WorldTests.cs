@@ -87,8 +87,10 @@ get 1
 ");
 		}
 
-		public void Repeat(string payload, int count, int slotNo)
+		public string Repeat(string payload, int count, int slotNo)
 		{
+			string s = "";
+			Func<string, string> AddPlan = cmd => s + cmd + Environment.NewLine;
 			AddPlan(slotNo + " " + payload);
 			AddPlan("S " + slotNo);
 			AddPlan(slotNo + " put");
@@ -97,7 +99,7 @@ get 1
 				AddPlan("S " + slotNo);
 				AddPlan(slotNo + " " + payload);
 			}
-			//AddPlan("S " + slotNo);
+			return s;
 		}
 
 		public void Apply(string f, int targetSlot, int slot)
@@ -121,7 +123,7 @@ get 1
 		[Test]
 		public void TestDoubleCycle()
 		{
-			Repeat("dec", 5, 0);
+			plan += Repeat("dec", 5, 0);
 			Loop(0);
 			Run(plan);
 			Console.WriteLine(plan);
@@ -263,11 +265,10 @@ S 0
 			Console.WriteLine();
 			Console.WriteLine(ThePlan.MakePlanForTail(0, "S (K(get)) (succ)"));
 			Console.WriteLine("!");
-			Repeat("dec", 200, 0);
+			plan += Repeat("dec", 200, 0);
 			Run(plan + @"
 K 0
 S 0
-
 K 0
 S 0
 K 0
