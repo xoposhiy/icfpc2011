@@ -52,7 +52,7 @@ namespace Contest
 
 		public IEnumerable<Move> ToMoves(string s)
 		{
-			var cmds = s.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+			var cmds = s.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 			return cmds.Select(Move.Parse);
 		}
 
@@ -154,7 +154,7 @@ S 0
 		public string Repeat(string payload, int count, int slotNo)
 		{
 			string s = "";
-			Action<string> addPlan = cmd => { s = s + cmd + Environment.NewLine; };
+			Action<string> addPlan = cmd => { s = s + cmd + "\n"; };
 			addPlan(slotNo + " " + payload);
 			addPlan("S " + slotNo);
 			addPlan(slotNo + " put");
