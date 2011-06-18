@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Primitives.cs" />
     <Compile Include="ZombieTests.cs" />
     <Compile Include="ThePlan.cs" />
     <Compile Include="Functions.cs" />

@@ -116,6 +116,40 @@ namespace Contest
 		}
 
 		[Test]
+		public void HelpIIMore()
+		{
+			world.opponent[0].vitality = 3;
+			PutZombieTo255("S(K(help(zero)(zero)))(K(succ(succ(zero))))", "S(K(help(zero)(zero)))(K(2))");
+			Assert.AreEqual(0, world.opponent[0].vitality);
+		}
+
+		[Test]
+		public void MakeHelpII()
+		{
+			var damage = "get(succ(dbl(succ(zero))))";
+			var payload = string.Format("S(K(help(zero)(zero)))(K({0}))", damage);
+			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
+			var slotNo = "dbl(dbl(succ(zero)))";
+			var replicatingZombie = string.Format("S(K(S ({0})(get)))(K({1}))", zombie, slotNo);
+			return;
+			world.RunMyPlan("3 zero");
+			world.RunMyPlan("succ 3");
+			world.RunMyPlan("succ 3");
+			world.opponent[255].vitality = 0;
+			world.RunMyForm(4, replicatingZombie);
+			world.RunMyPlan("4 zero");
+			world.opponent[255].vitality = 0;
+			world.opponent[255].value = Funcs.I;
+			world.RunMyPlan("4 zero");
+
+			//world.RunMyPlan("4 zero");
+			return;
+			var plan = ThePlan.MakePlan(4, replicatingZombie);
+			Console.WriteLine(plan);
+			world.RunMyPlan("3 zero\r\n" + plan + "\r\n4 zero");
+		}
+
+		[Test]
 		public void HelpIJ()
 		{
 			PutZombieTo255("S(K(help(zero)(succ(zero))))(K(succ(succ(zero))))", "S(K(help(zero)(1)))(K(2))");
@@ -136,10 +170,11 @@ namespace Contest
 		{
 			xToCheck = xToCheck ?? x;
 			world.opponent[255].vitality = 0;
-			Console.WriteLine(world.RunMyForm(0, string.Format("zombie (zero) (  {0} )", x)));
+			Console.WriteLine(world.RunMyForm(0, string.Format("zombie (zero) ( {0} )", x)));
 			Assert.AreEqual(-1, world.opponent[255].vitality);
 			Assert.AreEqual(xToCheck, world.opponent[255].value.ToString());
 			world.OpponentTurn(new Move(20, Funcs.I));
+			Console.WriteLine(world.ToString());
 			Assert.AreEqual("I", world.opponent[255].value.ToString());
 			Assert.AreEqual(0, world.opponent[255].vitality);
 		}
