@@ -94,9 +94,8 @@ S 0
 ";
 		public IEnumerable<Move> KillEmAll()
 		{
-			var targetSlot = 0;
 			yield return new Move(2, Zero);
-			while (true)
+			for (var targetSlot = 0; targetSlot <= 255; targetSlot++)
 			{
 				var bootstrapping = ToMoves(killemallBootstrap + LoopSuffix);
 				foreach (var move in bootstrapping)
@@ -107,7 +106,6 @@ S 0
 						yield return move;
 					Log(w.ToString(false));
 				}
-				targetSlot++;
 				yield return new Move(Succ, 2);
 			}
 		}
@@ -155,14 +153,25 @@ S 0
 
 		public IEnumerable<Move> MyMoves()
 		{
+			int idx = 0;
 			while (true)
 			{
 				foreach (Move move in p.KillEmAll())
 				{
-					w.MyTurn(move);
-					yield return move;
+					if (++idx % 200 == 0)
+					{
+						yield return MakeMyTurn(new Move(4, Funcs.Revive));
+						yield return MakeMyTurn(new Move(4, Funcs.Zero));
+					}
+					yield return MakeMyTurn(move);
 				}
 			}
+		}
+
+		private Move MakeMyTurn(Move move)
+		{
+			w.MyTurn(move);
+			return move;
 		}
 
 		private Move M(string move)
