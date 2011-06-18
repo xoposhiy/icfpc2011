@@ -74,9 +74,20 @@ namespace Contest
 						app.right);
 		}
 
+		public static string MakePlanForTail(int slotNo, string tail)
+		{
+			var plan = MakePlan(new PlanItem[]{null}, Parse(tail)).Skip(1).ToArray();
+			return FormatPlan(slotNo, plan);
+		}
+
 		public static string MakePlan(int slotNo, string form)
 		{
 			var plan = MakePlan(Parse(form));
+			return FormatPlan(slotNo, plan);
+		}
+
+		private static string FormatPlan(int slotNo, PlanItem[] plan)
+		{
 			var s = "";
 			foreach (var i in plan)
 			{

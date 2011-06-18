@@ -97,7 +97,7 @@ get 1
 				AddPlan("S " + slotNo);
 				AddPlan(slotNo + " " + payload);
 			}
-			AddPlan("S " + slotNo);
+			//AddPlan("S " + slotNo);
 		}
 
 		public void Apply(string f, int targetSlot, int slot)
@@ -256,6 +256,55 @@ S 0
 			Run(s);
 		}
 
+		[Test]
+		public void TestTara()
+		{
+			Console.WriteLine(ThePlan.MakePlanForTail(0, "S (K (dec))"));
+			Console.WriteLine();
+			Console.WriteLine(ThePlan.MakePlanForTail(0, "S (K(get)) (succ)"));
+			Console.WriteLine("!");
+			Repeat("dec", 200, 0);
+			Run(plan + @"
+K 0
+S 0
+
+K 0
+S 0
+K 0
+S 0
+0 S
+K 0
+S 0
+0 I
+K 0
+S 0
+0 K
+K 0
+S 0
+0 I
+0 get
+K 0
+S 0
+0 I
+0 succ
+S 0
+0 get
+
+1 zero
+succ 1 //target cell
+
+0 zero
+0 zero
+0 zero
+0 zero
+
+succ 1 //target cell
+
+0 zero
+0 zero
+0 zero
+");
+		}
 		[Test]
 		public void TestTaran()
 		{
