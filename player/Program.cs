@@ -2,12 +2,52 @@
 
 namespace Contest
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		private static void MainLame(string[] args)
+		{
+			while (true)
+			{
+				Console.WriteLine("1");
+				Console.WriteLine("I");
+				Console.WriteLine("0");
+			}
+		}
+
+
+		private static void Main(string[] args)
 		{
 			if (args.Length == 0) RunInteractive();
-			//else RunBattle();
+			var player = new Player();
+			if (args[0] == "1") player.HisMove(ReadMove());
+			foreach (Move m in player.MyMoves())
+			{
+				WriteMove(m);
+				Move hisMove = ReadMove();
+				if (hisMove == null) break;
+				player.HisMove(hisMove);
+			}
+		}
+
+		private static void OutLine(string s)
+		{
+			Console.Write(s + "\n");
+		}
+
+		private static void WriteMove(Move m)
+		{
+			OutLine(m.card_to_slot ? "1" : "2");
+			OutLine(m.card_to_slot ? m.card.ToString() : m.slot.ToString());
+			OutLine(m.card_to_slot ? m.slot.ToString() : m.card.ToString());
+		}
+
+		private static Move ReadMove()
+		{
+			Console.ReadLine();
+			string left = Console.ReadLine();
+			string right = Console.ReadLine();
+			if (left == null || right == null) return null;
+			return Move.Parse(left + " " + right);
 		}
 
 		private static Move ReadMoveInteractive()
@@ -18,7 +58,7 @@ namespace Contest
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.Message);
+				OutLine(e.Message);
 				return ReadMoveInteractive();
 			}
 		}
@@ -29,10 +69,10 @@ namespace Contest
 			var world = new World();
 			while (true)
 			{
-				var move = ReadMoveInteractive();
-				Console.WriteLine(move.ToString());
+				Move move = ReadMoveInteractive();
+				OutLine(move.ToString());
 				world.MyTurn(move);
-				Console.WriteLine(world.ToString(true));
+				OutLine(world.ToString(true));
 			}
 		}
 	}

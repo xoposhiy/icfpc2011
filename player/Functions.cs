@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Contest
 {
-	public static class Funcs
+	public class Funcs
 	{
 		public static Value[] allFuncs;
 		static Funcs()

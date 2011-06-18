@@ -119,7 +119,7 @@ namespace Contest
 
 		private static void Log(string message)
 		{
-			Console.WriteLine(message);
+			//Console.WriteLine(message);
 		}
 
 		public Value OpponentTurn(Move move)

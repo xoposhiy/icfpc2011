@@ -1,0 +1,2 @@
+#!/bin/sh
+player.exe $1
