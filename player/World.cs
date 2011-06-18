@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 
 namespace Contest
@@ -59,6 +60,10 @@ namespace Contest
 
 	public class Slot
 	{
+		public override string ToString()
+		{
+			return string.Format("{{{0}, {1}}}", vitality, value);
+		}
 		public int vitality;
 		public Value value;
 
