@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ThePlan.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />

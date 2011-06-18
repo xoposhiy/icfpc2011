@@ -43,6 +43,18 @@ namespace Contest
 		{
 			return card_to_slot ? (card + " [" + slot + "]") : (slot + " [" + card + "]");
 		}
+
+		public string ToOrgString()
+		{
+			var s = "";
+			s += card_to_slot ? "1" : "2";
+			s += "\n";
+			s += card_to_slot ? card.ToString() : slot.ToString();
+			s += "\n";
+			s += card_to_slot ? slot.ToString() : card.ToString();
+			s += "\n";
+			return s;
+		}
 	}
 
 	public class Slot
@@ -119,7 +131,7 @@ namespace Contest
 
 		private static void Log(string message)
 		{
-			//Console.WriteLine(message);
+			Console.WriteLine(message);
 		}
 
 		public Value OpponentTurn(Move move)

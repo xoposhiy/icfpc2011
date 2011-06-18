@@ -14,6 +14,8 @@ namespace Contest
 
 		public IEnumerable<Move> Attack0()
 		{
+			// S (get) (S dec I) : zero
+			// S (S (dec) (put)) (get) : zero
 			yield return new Move(0, Get);
 			yield return new Move(S, 0);
 			yield return new Move(K, 0);
@@ -44,6 +46,11 @@ namespace Contest
 			yield return new Move(0, Dec);
 			yield return new Move(0, Succ);
 			yield return new Move(0, Zero);
+		}
+
+		public IEnumerable<Move> AttackAlive()
+		{
+			yield break;
 		}
 	}
 

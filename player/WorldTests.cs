@@ -10,11 +10,13 @@ namespace Contest
 	public class WorldTests
 	{
 		private World world;
+		private string plan;
 
 		[SetUp]
 		public void SetUp()
 		{
 			world = new World();
+			plan = "";
 		}
 
 		[Test]
@@ -28,6 +30,85 @@ namespace Contest
 			Console.WriteLine(world);
 		}
 		
+		[Test]
+		public void TestPlan()
+		{
+			Run(ThePlan.MakePlan(0, "S( K ( get)) ( K ( zero ) )") + "\r\n0 zero");
+		}
+		
+		[Test]
+		public void T()
+		{
+			Console.WriteLine(ThePlan.MakePlan(0, "S(K(dec))(K(get(succ(succ(zero)))))"));
+		}
+
+		public void Repeat(string payload, int count, int slotNo)
+		{
+			AddPlan(slotNo + " " + payload);
+			AddPlan("S " + slotNo);
+			AddPlan(slotNo + " put");
+			for (int i = 1; i < count; i++)
+			{
+				AddPlan("S " + slotNo);
+				AddPlan(slotNo + " " + payload);
+			}
+			AddPlan("S " + slotNo);
+		}
+
+		public void Apply(string f, int targetSlot, int slot)
+		{
+			//S (S (K get) (K targetSlot))
+			
+		}
+
+		public void Loop(int slotNo)
+		{
+			AddPlan("K " + slotNo);
+			AddPlan("S " + slotNo);
+			AddPlan("K " + slotNo);
+			AddPlan("S " + slotNo);
+			AddPlan(slotNo + " S");
+			AddPlan(slotNo + " get");
+			AddPlan(slotNo + " I");
+			AddPlan(slotNo + " zero");
+		}
+
+		[Test]
+		public void TestDoubleCycle()
+		{
+			Repeat("dec", 5, 0);
+			Loop(0);
+			Run(plan);
+			Console.WriteLine(plan);
+		}
+
+		[Test]
+		public void TestPlan2()
+		{
+			AddPlan("0 zero");
+			AddPlan("succ 0");
+			AddPlan("dbl 0");
+			AddPlan("1 zero");
+			AddPlan("succ 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan(ThePlan.MakePlan(3, "(help (get ( succ(zero))) (get ( succ(zero))) (get ( succ (zero)))) "));
+			Run(plan);
+			Console.WriteLine("Plan length: " + plan.Split('\n').Count());
+		}
+
+		private void AddPlan(string s)
+		{
+			plan += s + "\r\n";
+		}
+
 		[Test]
 		public void TestBattle()
 		{
@@ -128,6 +209,105 @@ S 0
 0 I
 0 zero";
 			Run(s);
+		}
+
+		[Test]
+		public void TestTaran()
+		{
+			string s = @"
+0 S
+0 inc
+0 inc
+" +
+Repeat(@"S 0
+0 inc
+", 331) +
+@"S 0
+0 get
+0 zero
+";
+			Run(s);
+			File.WriteAllText("toRun.txt", ConvertToOrgFormat(s));
+		}
+
+		[Test]
+		public void TestHelp()
+		{
+			string s = @"
+0 zero
+succ 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+1 help
+1 zero
+1 zero
+K 1
+S 1
+1 get
+1 zero";
+			Run(s);
+			File.WriteAllText("toRun.txt", ConvertToOrgFormat(s));
+		}
+
+		[Test]
+		public void TestHelp1()
+		{
+			string s = @"
+0 zero
+succ 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+dbl 0
+1 help
+1 zero
+1 zero
+K 1
+S 1
+1 get
+1 zero";
+			Run(s);
+			File.WriteAllText("toRun.txt", ConvertToOrgFormat(s));
+		}
+
+		private string ConvertToOrgFormat(string s)
+		{
+			var res = "";
+			var lines = s.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+			foreach (var line in lines)
+			{
+				var move = Move.Parse(line);
+				res += move.ToOrgString();
+			}
+			return res;
+		}
+
+		private string Repeat(string s, int count)
+		{
+			var sb = new StringBuilder();
+			for (int i = 0; i < count; i++)
+				sb.Append(s);
+			return sb.ToString();
 		}
 
 
