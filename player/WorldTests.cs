@@ -7,7 +7,7 @@ using System.Linq;
 namespace Contest
 {
 	[TestFixture]
-	public class WorldTests
+	public class WorldTests : Form
 	{
 		private World world;
 		private string plan;
@@ -19,7 +19,23 @@ namespace Contest
 			plan = "";
 		}
 
-	
+		[Test]
+		public void Attacker()
+		{
+			
+			var attacker = CreateDelayedAttacker("zero", "succ(zero)");
+
+			AddPlan(ThePlan.MakePlan(2, attacker));
+			AddPlan("0 zero");
+			AddPlan("1 zero");
+			AddPlan("succ 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("dbl 1");
+			AddPlan("2 zero");
+			Run(plan);
+		}
+
 		[Test]
 		public void TestPlan()
 		{

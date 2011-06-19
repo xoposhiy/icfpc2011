@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Contest
@@ -48,6 +49,8 @@ namespace Contest
 			yield return new Move(0, Succ);
 			yield return new Move(0, Zero);
 		}
+
+		
 
 		public IEnumerable<Move> ToMoves(string s)
 		{
@@ -149,6 +152,31 @@ S 0
 			}
 		}
 
+
+		public IEnumerable<Move> Attacker()
+		{
+			var targetSlot = "succ(zero)";
+			var damageSlot = "succ(succ(zero))";
+			int attackerSlot = 0;
+			foreach (var m in CreateAttackerIfNeeded(attackerSlot, targetSlot, damageSlot))
+			{
+				yield return m;
+			}
+			if (w.me[0].vitality >= 32768)
+			{
+				//TODO Attack somebody
+			}
+		}
+
+		private bool attackerCreated = false;
+		private IEnumerable<Move> CreateAttackerIfNeeded(int slotNo, string targetSlot, string damageSlot)
+		{
+			if (attackerCreated) return new Move[0];
+			var attack_I_I_D = Form.CreateDelayedAttacker(targetSlot, damageSlot);
+			var plan = ThePlan.MakePlan(slotNo, attack_I_I_D);
+			return ToMoves(plan);
+		}
+
 		public string Repeat(string payload, int count, int slotNo)
 		{
 			string s = "";
@@ -246,5 +274,34 @@ S 0
 			healer = string.Format("S (K({0})) (K({1}))", healer, healerSlot);
 			return ThePlan.MakePlan(healerSlotNo, healer);
 		}
+	}
+
+	public class Form
+	{
+		public static string DelayFun(string f)
+		{
+			return string.Format("K({0})", f);
+		}
+
+		public static string DelayApplication(string f, string arg, bool funIsDelayed, bool argIsDelayed)
+		{
+			if (!funIsDelayed) f = DelayFun(f);
+			if (!argIsDelayed) arg = DelayFun(arg);
+			return string.Format("S ({0}) ({1}) ", f, arg);
+		}
+
+		/// <summary>
+		/// CreateDelayedAttacker(string targetSlot, string damageSlot) (_) -> attacks (get (targetSlot)) (get (targetSlot)) (get (damageSlot))
+		/// </summary>
+		public static string CreateDelayedAttacker(string targetSlot, string damageSlot)
+		{
+			var dellayedGetTarget = DelayApplication("get", targetSlot, false, false);
+			string attack_I_I = DelayApplication("S (attack) (I)", dellayedGetTarget, false, true);
+			var delayedGetDamage = DelayApplication("get", damageSlot, false, false);
+			string attack_I_I_D = DelayApplication(attack_I_I, delayedGetDamage, true, true);
+			return attack_I_I_D;
+		}
+
+		
 	}
 }
