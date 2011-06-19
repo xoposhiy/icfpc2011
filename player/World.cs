@@ -42,7 +42,7 @@ namespace Contest
 		public Value card;
 		public override string ToString()
 		{
-			return card_to_slot ? (card + " [" + slot + "]") : (slot + " [" + card + "]");
+			return card_to_slot ? (card + " " + slot) : (slot + " " + card);
 		}
 
 		public string ToOrgString()
@@ -177,13 +177,13 @@ namespace Contest
 		}
 
 
-		public void RunMyPlan(string s)
+		public void RunMyPlan(string s, bool silent = false)
 		{
 			var lines = s.SplitByLineFeeds();
 			foreach (var line in lines)
 			{
 				MyTurn(Move.Parse(line));
-				Console.WriteLine(ToString());
+				if (!silent) Console.WriteLine(ToString());
 			}
 		}
 

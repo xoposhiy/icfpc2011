@@ -46,6 +46,7 @@
     <Compile Include="Form.cs" />
     <Compile Include="HealerTests.cs" />
     <Compile Include="Primitives.cs" />
+    <Compile Include="SetValueTests.cs" />
     <Compile Include="ZombieTests.cs" />
     <Compile Include="ThePlan.cs" />
     <Compile Include="Functions.cs" />

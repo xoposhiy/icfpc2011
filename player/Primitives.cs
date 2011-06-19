@@ -53,7 +53,7 @@ namespace Contest
 
 		
 
-		public IEnumerable<Move> ToMoves(string s)
+		public static IEnumerable<Move> ToMoves(string s)
 		{
 			return s.SplitByLineFeeds().Select(Move.Parse);
 		}
@@ -153,23 +153,62 @@ S 0
 			}
 		}
 
+		public IEnumerable<Move> SetSlotTo(int slotNo, int value)
+		{
+			var oldValue = w.me[slotNo].value;
+			if (oldValue.IsNum && oldValue.AsNum() == value) yield break;
+			if (value == 255)
+			{
+				yield return new Move(Funcs.Put, slotNo);
+				yield return new Move(slotNo, Funcs.Zero);
+				foreach (var m in 255.ToMoves(slotNo))
+					yield return m;
+			}
+			else
+			{
+				int old;
+				if (!oldValue.IsNum || oldValue.AsNum() > value)
+				{
+					if (oldValue.ToString() != "I") yield return new Move(Funcs.Put, slotNo);
+					yield return new Move(slotNo, Funcs.Zero);
+					old = 0;
+				}
+				else
+					old = oldValue.AsNum();
+				while (old < value)
+				{
+					if (old > 0 && 2 * old <= value)
+					{
+						yield return new Move(Funcs.Dbl, slotNo);
+						old *= 2;
+					}
+					else
+					{
+						yield return new Move(Funcs.Succ, slotNo);
+						old++;
+					}
+				}
+			}
+		}
 
 		public IEnumerable<Move> AttackEmAll(int attackerSlot, int targetSlot, int damageSlot)
 		{
 			foreach (var m in CreateAttackerIfNeeded(attackerSlot, targetSlot.ToForm(), damageSlot.ToForm()))
 				yield return m;
-			yield return new Move(Put, targetSlot);
-			yield return new Move(targetSlot, Zero);
-			for (var target = 0; target <= 255; target++)
+			for (var target = 8; target <= 255+8; target++)
 			{
-				while (w.opponent[255 - target].vitality > 0)
+				foreach (var m in SetSlotTo(targetSlot, target%256)) yield return m;
+				
+				while (w.opponent[255 - (target % 256)].vitality > 0)
 				{
-					if (w.me[0].vitality < 32768) yield return null; // Не угробить бы себя...
-					yield return new Move(attackerSlot, Zero);
+					if (w.me[0].vitality > 32768)
+						yield return new Move(attackerSlot, Zero);
+					else
+						yield return null; // Не угробить бы себя...
 				}
-				yield return new Move(Succ, targetSlot);
 			}
 		}
+
 
 		private bool attackerCreated = false;
 		private IEnumerable<Move> CreateAttackerIfNeeded(int slotNo, string targetSlot, string damageSlot)
