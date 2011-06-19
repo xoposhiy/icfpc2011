@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Contest
 {
@@ -12,7 +13,6 @@ namespace Contest
 
 		public Player()
 		{
-			//Debugger.Launch();
 			p = new Primitives(w);
 		}
 
@@ -31,48 +31,65 @@ namespace Contest
 		private const int AttackerHomeSlot = 6;
 		private const int HealerHomeSlot = 7;
 
+		private const int HealerAndZombieDamage = 2*4096;
+		private const int AttackerDamage = 4*4096;
+
 		public IEnumerable<Move> MyMoves()
 		{
-			var healer_and_zombie_damage = 4096;
-			foreach (var move in p.SetSlotToPowerOf2(HealerDamageSlot, healer_and_zombie_damage))
-				yield return MakeMyTurn(move);
-			foreach (var move in p.SetSlotToPowerOf2(AttackerDamageSlot, 4*4096))
-				yield return MakeMyTurn(move);
+			return DoMyMoves().Select(MakeMyTurn);
+		}
 
-			//init healer in slot3
+		public IEnumerable<Move> DoMyMoves()
+		{
+			foreach (var move in p.SetSlotToPowerOf2(HealerDamageSlot, HealerAndZombieDamage))
+				yield return move;
+			foreach (var move in p.SetSlotToPowerOf2(AttackerDamageSlot, AttackerDamage))
+				yield return move;
+
 			foreach (var move in p.CreateHealer())
-				yield return MakeMyTurn(move);
+				yield return move;
 
 			if (w.me[0].vitality < 32768)
 			{
 				foreach (var m in p.RunHealer())
-					yield return MakeMyTurn(m);
+					yield return m;
 			}
 
-			foreach (var move in p.CreateZombie(ZombieSlot, HealerDamageSlot))
-				yield return MakeMyTurn(move);
+//			foreach (var move in p.CreateZombie(ZombieSlot, HealerDamageSlot))
+//				yield return move;
 
 			while (true)
 			{
-				foreach (var move in p.TaranEmAll())
+				foreach (var move in p.AttackEmAll(AttackerHomeSlot, AttackerTargetSlot, AttackerDamageSlot))
 				{
-					if (w.me[0].vitality < 32768)
+					bool wasMove = false;
+					if (move != null)
 					{
-						foreach (var m in p.RunHealer())
-							yield return MakeMyTurn(m);
+						yield return move;
+						wasMove = true;
 					}
-					if (w.opponent[255].vitality == 0)
+//					foreach (var zm in MayBeFireZombie()) yield return zm;
+					foreach (var hm in MayBeHealZero())
 					{
-						Log("before zombie: w.opponent[0] = " + w.opponent[0]);
-						if (w.opponent[0].vitality >= healer_and_zombie_damage)
-						{
-							yield return MakeMyTurn(new Move(ZombieSlot, Funcs.Zero));
-							Log("after zombie: w.opponent[0] = " + w.opponent[0]);
-						}
+						wasMove = true;
+						yield return hm;
 					}
-					yield return MakeMyTurn(move);
+					if (!wasMove) yield return new Move(Funcs.I, 0); //Мы подохли. Делаем тупой ход, чтобы не получить Time Limit!
 				}
 			}
+		}
+
+		private IEnumerable<Move> MayBeHealZero()
+		{
+			if (w.me[0].vitality < 32768) //TODO Добавить проверку: "И наш хиллер-прото-слот, хиллер-хоум-слот и хиллер-таргет-слот живы!"
+				foreach (var m in p.RunHealer()) yield return m;
+		}
+
+		private IEnumerable<Move> MayBeFireZombie()
+		{
+			// Условие применимости: есть дохлая в 255, в 0-ой достаточно жизни и наш зомби-слот жив
+			if (w.opponent[255].vitality == 0 && w.opponent[0].vitality >= HealerAndZombieDamage&& w.me[ZombieSlot].vitality > 0)
+				yield return new Move(ZombieSlot, Funcs.Zero);
 		}
 
 		private void Log(string message)

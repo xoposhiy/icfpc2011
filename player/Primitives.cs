@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Contest
@@ -153,18 +154,20 @@ S 0
 		}
 
 
-		public IEnumerable<Move> Attacker()
+		public IEnumerable<Move> AttackEmAll(int attackerSlot, int targetSlot, int damageSlot)
 		{
-			var targetSlot = "succ(zero)";
-			var damageSlot = "succ(succ(zero))";
-			int attackerSlot = 0;
-			foreach (var m in CreateAttackerIfNeeded(attackerSlot, targetSlot, damageSlot))
-			{
+			foreach (var m in CreateAttackerIfNeeded(attackerSlot, targetSlot.ToForm(), damageSlot.ToForm()))
 				yield return m;
-			}
-			if (w.me[0].vitality >= 32768)
+			yield return new Move(Put, targetSlot);
+			yield return new Move(targetSlot, Zero);
+			for (var target = 0; target <= 255; target++)
 			{
-				//TODO Attack somebody
+				while (w.opponent[255 - target].vitality > 0)
+				{
+					if (w.me[0].vitality < 32768) yield return null; // Не угробить бы себя...
+					yield return new Move(attackerSlot, Zero);
+				}
+				yield return new Move(Succ, targetSlot);
 			}
 		}
 
@@ -172,6 +175,7 @@ S 0
 		private IEnumerable<Move> CreateAttackerIfNeeded(int slotNo, string targetSlot, string damageSlot)
 		{
 			if (attackerCreated) return new Move[0];
+			attackerCreated = true;
 			var attack_I_I_D = Form.CreateDelayedAttacker(targetSlot, damageSlot);
 			var plan = ThePlan.MakePlan(slotNo, Form.AddSelfReproducing(slotNo, attack_I_I_D));
 			return ToMoves(plan);
@@ -243,18 +247,15 @@ S 0
 
 		public IEnumerable<Move> RunHealer()
 		{
-			//v[3] = Healer
+			//v[0] = Healer
 			yield return new Move(7, Zero);
-			yield return new Move(Succ, 7);
-			yield return new Move(Succ, 7);
-			yield return new Move(Succ, 7);	//slot[7]=3
-			yield return new Move(Get, 7);	//slot[7]=slot[3]
+			yield return new Move(Get, 7);	//slot[7]=slot[0]
 			yield return new Move(7, Zero);	//run!
 		}
 
 		public IEnumerable<Move> CreateHealer()
 		{
-			return CreateHealer(3, "succ(dbl(succ(zero)))");
+			return CreateHealer(0, "zero");
 		}
 
 		public IEnumerable<Move> CreateHealer(int healerSlotNo, string healerSlot)

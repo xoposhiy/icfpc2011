@@ -345,6 +345,11 @@ namespace Contest
 			this.toString = toString;
 		}
 
+		public bool IsNum
+		{
+			get { return this is Num; }
+		}
+
 		public int AsNum()
 		{
 			var n = this as Num;

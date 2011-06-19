@@ -20,9 +20,9 @@ namespace Contest
 		public static string CreateDelayedAttacker(string targetSlot, string damageSlot)
 		{
 			var dellayedGetTarget = DelayApplication("get", targetSlot, false, false);
-			string attack_I_I = DelayApplication("S (attack) (I)", dellayedGetTarget, false, true);
-			var delayedGetDamage = DelayApplication("get", damageSlot, false, false);
-			string attack_I_I_D = DelayApplication(attack_I_I, delayedGetDamage, true, true);
+			string attack_I_I = DelayApplication("attack (zero)", dellayedGetTarget, false, true);
+			var damage = string.Format("get ({0})", damageSlot);
+			string attack_I_I_D = DelayApplication(attack_I_I, damage, true, false);
 			return attack_I_I_D;
 		}
 

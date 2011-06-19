@@ -31,17 +31,18 @@ namespace Contest
 		public void Attacker()
 		{
 			
-			var attacker = CreateDelayedAttacker("succ(zero)", "zero");
+			var attacker = AddSelfReproducing(2, CreateDelayedAttacker("zero", "succ(zero)"));
 
 			var attackerPlan = ThePlan.MakePlan(2, attacker);
 			Console.WriteLine(attackerPlan.SplitByLineFeeds().Length);
 			AddPlan(attackerPlan);
 			AddPlan("0 zero");
-			AddPlan("1 zero");
-			AddPlan("succ 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
+			AddPlan("succ 0");
+			world.me[0].vitality = 65535;
+			AddPlan(ThePlan.MakePlan(1, (2*4096).ToForm()));
+			AddPlan("2 zero");
+			AddPlan("2 zero");
+			AddPlan("2 zero");
 			AddPlan("2 zero");
 			Run(plan);
 		}
