@@ -55,6 +55,7 @@ namespace Contest
 			var healing = string.Format("help ({0}) ({1})", source, target);
 			healing = DelayApplication(healing, damage, false, false);
 			return AddSelfReproducing(healerSlotNo, healing);
+		}
 
 		public static string Repeat(string payload, int count)
 		{
