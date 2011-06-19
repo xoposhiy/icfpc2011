@@ -80,7 +80,37 @@ namespace Contest
 		[Test]
 		public void TestPlan()
 		{
-			Console.WriteLine(ThePlan.MakePlan(0, "S( K ( dec)) ( K ( get (succ (succ(zero))) ) )"));
+			Console.WriteLine(ThePlan.MakePlan(0, "S( K ( dec)) ( K ( get (succ (succ(zero))) ) )").SplitByLineFeeds().Count());
+		}
+
+		[Test]
+		public void UberZombie()
+		{
+			world.opponent[0].vitality = 65535;
+			world.opponent[255].vitality = 0; //dead opponent slot
+			world.me[2].value = new Num(8192); //damage
+
+			var uberZombiePayload = CreateUberZombiePayload(2);
+			plan = ThePlan.MakePlan(3, uberZombiePayload);
+			world.RunMyPlan(plan, silent:true);
+			Console.WriteLine(plan.SplitByLineFeeds().Count());
+			//Console.WriteLine(plan);
+
+			var zombie4 = Create4Zombie(5, 3);
+			plan = ThePlan.MakePlan(5, zombie4);
+			Console.WriteLine(plan.SplitByLineFeeds().Count());
+			Console.WriteLine(plan);
+			Run(plan);
+			Run("5 zero");
+			world.OpponentTurn(new Move(Funcs.I, 0));
+			Console.WriteLine(world.ToString());
+			return;
+		}
+
+		[Test]
+		public void TestNum()
+		{
+			Console.WriteLine(ThePlan.MakePlan(0, 255.ToForm()).SplitByLineFeeds().Count());
 		}
 		
 		[Test]

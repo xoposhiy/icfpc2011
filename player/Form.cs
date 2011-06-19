@@ -55,6 +55,52 @@ namespace Contest
 			var healing = string.Format("help ({0}) ({1})", source, target);
 			healing = DelayApplication(healing, damage, false, false);
 			return AddSelfReproducing(healerSlotNo, healing);
+
+		public static string Repeat(string payload, int count)
+		{
+			string s = payload;
+			for (int i = 1; i < count; i++)
+				s = string.Format("S({0})({1})", s, payload);
+			return s;
+		}
+
+		public static string CreateUberZombie(int zombieSlot, int zombieDamageSlot)
+		{
+			var damage = string.Format("get({0})", zombieDamageSlot.ToForm());
+			var payload = DelayApplication("help(zero)(zero)", damage, false, false);
+			var payload4 = Repeat(payload, 4);
+			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload4);
+			return string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlot.ToForm());
+		}
+
+		public static string CreateUberZombiePayload(int zombieDamageSlot)
+		{
+			var damage = string.Format("get({0})", zombieDamageSlot.ToForm());
+			var payload = DelayApplication("help(zero)(zero)", damage, false, false);
+			return Repeat(payload, 1);
+		}
+
+		public static string MakeDelayed0Zombie(string payload)
+		{
+			return string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
+		}
+
+		public static string Create4Zombie(int zombieSlot, int payloadSlot)
+		{
+			var payload = string.Format("get({0})", payloadSlot.ToForm());
+			var payload4 = Repeat(payload, 4);
+			var delayedZombie = MakeDelayed0Zombie(payload4);
+			return AddSelfReproducing(zombieSlot, delayedZombie);
+		}
+
+		/// <summary>
+		/// AddIncCycling(hostingSlotNo, payload) (n) -> payload(n), payload(n+1), ...
+		/// </summary>
+		public static string AddIncCycling(int slotWithHostingSlotNo, string payload)
+		{
+			var hostingSlotNo = "get(" + slotWithHostingSlotNo.ToForm() + ")";
+			var delayGetSource = DelayApplication("get", hostingSlotNo, false, false);
+			return string.Format("S({0})(S({1})(succ))", payload, delayGetSource);
 		}
 	}
 }
