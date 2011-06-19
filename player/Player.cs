@@ -46,12 +46,13 @@ namespace Contest
 			foreach (var move in p.SetSlotToPowerOf2(AttackerDamageSlot, AttackerDamage))
 				yield return move;
 
-			foreach (var move in p.CreateHealer())
+			foreach (var move in p.CreateHealer(HealerPrototypeSlot, HealerTargetSlot, HealerDamageSlot))
 				yield return move;
 
 			if (w.me[0].vitality < 32768)
 			{
-				foreach (var m in p.RunHealer())
+				yield return new Move(HealerTargetSlot, Funcs.Zero);
+				foreach (var m in p.RunHealer(HealerHomeSlot))
 					yield return m;
 			}
 
@@ -82,7 +83,7 @@ namespace Contest
 		private IEnumerable<Move> MayBeHealZero()
 		{
 			if (w.me[0].vitality < 32768) //TODO Добавить проверку: "И наш хиллер-прото-слот, хиллер-хоум-слот и хиллер-таргет-слот живы!"
-				foreach (var m in p.RunHealer()) yield return m;
+				foreach (var m in p.RunHealer(HealerHomeSlot)) yield return m;
 		}
 
 		private IEnumerable<Move> MayBeFireZombie()
