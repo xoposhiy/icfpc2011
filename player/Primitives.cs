@@ -291,5 +291,12 @@ S 0
 			var plan = ThePlan.MakePlan(healerProtoSlot, healer);
 			return ToMoves(plan);
 		}
+
+		public IEnumerable<Move> CreateHealer255(int homeSlot, int damageSlot, int getTargetFromSlot)
+		{
+			var healer = Form.CreateHealer255(homeSlot, damageSlot.ToForm(), getTargetFromSlot.ToForm());
+			var plan = ThePlan.MakePlan(homeSlot, healer);
+			return ToMoves(plan);
+		}
 	}
 }

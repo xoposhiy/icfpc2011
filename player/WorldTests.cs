@@ -32,14 +32,28 @@ namespace Contest
 		{
 			var healer = CreateHealer(1.ToForm(), 2.ToForm(), 0.ToForm());
 			var healerPlan = ThePlan.MakePlan(0, healer);
-			Console.WriteLine(healerPlan);
 			Console.WriteLine(healerPlan.SplitByLineFeeds().Length);
+			Console.WriteLine(healerPlan);
 			AddPlan("1 zero");//target = 0
 			AddPlan(ThePlan.MakePlan(2, 9500.ToForm()));//set damage
 			AddPlan(healerPlan);//healer constructed in slot 0
 			AddPlan("7 zero");
 			AddPlan("get 7");//clone healer
 			AddPlan("7 zero");//run healer
+			Run(plan);
+		}
+
+		[Test]
+		public void Healer255()
+		{
+			var healer = CreateHealer255(9, 2.ToForm(), 8.ToForm());
+			var healerPlan = ThePlan.MakePlan(9, healer);
+			Console.WriteLine(healerPlan.SplitByLineFeeds().Length);
+			Console.WriteLine(healerPlan);
+			AddPlan(ThePlan.MakePlan(8, 255.ToForm()));//set target
+			AddPlan(ThePlan.MakePlan(2, 2048.ToForm()));//set damage
+			AddPlan(healerPlan);//healer constructed in slot 9
+			AddPlan("9 zero");//run healer
 			Run(plan);
 		}
 		

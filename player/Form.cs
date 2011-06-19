@@ -46,5 +46,15 @@ namespace Contest
 			cycling = DelayApplication(cycling, protoSlot, false, false);
 			return cycling;
 		}
+
+		public static string CreateHealer255(int healerSlotNo, string damageSlot, string getTargetSlotFrom)
+		{
+			var target = string.Format("get({0})", getTargetSlotFrom);
+			var damage = string.Format("dbl(get({0}))", damageSlot);
+			var source = 1.ToForm();
+			var healing = string.Format("help ({0}) ({1})", source, target);
+			healing = DelayApplication(healing, damage, false, false);
+			return AddSelfReproducing(healerSlotNo, healing);
+		}
 	}
 }

@@ -31,6 +31,8 @@ namespace Contest
 		private const int ZombieSlot = 5;
 		private const int AttackerHomeSlot = 6;
 		private const int HealerHomeSlot = 7;
+		private const int Const255Slot = 8;
+		private const int Healer255HomeSlot = 9;
 
 		private const int HealerAndZombieDamage = 2*4096;
 		private const int AttackerDamage = 4*4096;
@@ -46,8 +48,15 @@ namespace Contest
 				yield return move;
 			foreach (var move in p.SetSlotToPowerOf2(AttackerDamageSlot, AttackerDamage))
 				yield return move;
+			foreach (var move in p.SetSlotTo(Const255Slot, 255))
+				yield return move;
 
 			foreach (var move in p.CreateHealer(HealerPrototypeSlot, HealerTargetSlot, HealerDamageSlot))
+				yield return move;
+
+			foreach (var move in HealAllIfNeeded()) yield return move;
+
+			foreach (var move in p.CreateHealer255(Healer255HomeSlot, AttackerDamageSlot, Const255Slot))
 				yield return move;
 
 			foreach (var move in HealAllIfNeeded()) yield return move;
@@ -78,12 +87,10 @@ namespace Contest
 
 		private IEnumerable<Move> HealAllIfNeeded()
 		{
-			//foreach (var move in HealPatientIfNeeded(0)) yield return move;
-			//foreach (var move in HealPatientIfNeeded(255)) yield return move;
-			for (int patient = 0; patient < 8; patient++)
-			{
+			for (var patient = 0; patient < 10; patient++)
 				foreach (var move in HealPatientIfNeeded(patient)) yield return move;
-			}
+			if (w.me[255].vitality <= 49151 && w.me[1].vitality > 2 * AttackerDamage && w.me[Healer255HomeSlot].value.ToString() != "I")
+				yield return new Move(Healer255HomeSlot, Funcs.Zero);
 		}
 
 		private IEnumerable<Move> HealPatientIfNeeded(int patient)
@@ -93,13 +100,6 @@ namespace Contest
 				foreach (var m in p.SetSlotTo(HealerTargetSlot, patient)) yield return m;
 				foreach (var m in p.RunHealer(HealerHomeSlot)) yield return m;
 			}
-		}
-
-
-		private IEnumerable<Move> HealZeroIfNeeded()
-		{
-			if (w.me[0].vitality < 32768) //TODO Добавить проверку: "И наш хиллер-прото-слот, хиллер-хоум-слот и хиллер-таргет-слот живы!"
-				foreach (var m in p.RunHealer(HealerHomeSlot)) yield return m;
 		}
 
 		private IEnumerable<Move> MayBeFireZombie()
@@ -118,22 +118,6 @@ namespace Contest
 		{
 			w.MyTurn(move);
 			return move;
-		}
-
-		private Move M(string move)
-		{
-			return Move.Parse(move);
-		}
-	}
-
-	public static partial class Extensions
-	{
-		public static void Each<T>(this IEnumerable<T> items, Action<T> action)
-		{
-			foreach (T item in items)
-			{
-				action(item);
-			}
 		}
 	}
 }
