@@ -378,7 +378,7 @@ S 1
 		private string ConvertToOrgFormat(string s)
 		{
 			var res = "";
-			var lines = s.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+			var lines = s.SplitByLineFeeds();
 			foreach (var line in lines)
 			{
 				var move = Move.Parse(line);
@@ -436,7 +436,7 @@ S 1
 
 		private void Run(string s, bool only = true)
 		{
-			var lines = s.Split(new[]{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+			var lines = s.SplitByLineFeeds();
 			var turn = true;
 			foreach (var line in lines)
 			{

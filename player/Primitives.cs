@@ -51,8 +51,7 @@ namespace Contest
 
 		public IEnumerable<Move> ToMoves(string s)
 		{
-			var cmds = s.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-			return cmds.Select(Move.Parse);
+			return s.SplitByLineFeeds().Select(Move.Parse);
 		}
 
 		public static string killemallBootstrap = @"
@@ -190,19 +189,22 @@ S 0
 0 I
 ";
 
-		public IEnumerable<Move> CreateZombies()
+		public IEnumerable<Move> SetSlot2To8192()
 		{
 			yield return new Move(2, Zero);
 			yield return new Move(Succ, 2); //1
-			for (int i = 0; i < 13; i++ )
+			for (int i = 0; i < 13; i++)
 				yield return new Move(Dbl, 2);
+		}
+
+		public IEnumerable<Move> CreateZombies()
+		{
 			//v[2] = 8192
 			foreach (var m in CreateZombie(4, "dbl(dbl(succ(zero)))")) yield return m;
 			yield return new Move(Dbl, 2); //16384
 			foreach (var m in CreateZombie(5, "succ(dbl(dbl(succ(zero))))")) yield return m;
 			yield return new Move(Dbl, 2); //32768
 			foreach (var m in CreateZombie(6, "dbl(succ(dbl(succ(zero))))")) yield return m;
-
 		}
 
 		private IEnumerable<Move> CreateZombie(int zombieSlotNo, string zombieSlot)
@@ -212,6 +214,37 @@ S 0
 			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
 			var replicatingZombie = string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlot);
 			return ToMoves(ThePlan.MakePlan(zombieSlotNo, replicatingZombie));
+		}
+
+		public IEnumerable<Move> RunHealer()
+		{
+			//v[3] = Healer
+			yield return new Move(7, Zero);
+			yield return new Move(Succ, 7);
+			yield return new Move(Succ, 7);
+			yield return new Move(Succ, 7);	//slot[7]=3
+			yield return new Move(Get, 7);	//slot[7]=slot[3]
+			yield return new Move(7, Zero);	//run!
+		}
+
+		public IEnumerable<Move> CreateHealer()
+		{
+			return CreateHealer(3, "succ(dbl(succ(zero)))");
+		}
+
+		public IEnumerable<Move> CreateHealer(int healerSlotNo, string healerSlot)
+		{
+			return ToMoves(GetHealerPlan(healerSlotNo, healerSlot));
+		}
+
+		public static string GetHealerPlan(int healerSlotNo, string healerSlot)
+		{
+			//v[2] = 8192
+			const string damageSlot = "dbl(succ(zero))"; //2
+			var healer = string.Format("S(K(help(zero)(zero)))(K(get({0})))", damageSlot);
+			healer = string.Format("S ({0}) (S(get)(I))", healer);
+			healer = string.Format("S (K({0})) (K({1}))", healer, healerSlot);
+			return ThePlan.MakePlan(healerSlotNo, healer);
 		}
 	}
 }

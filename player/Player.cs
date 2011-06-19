@@ -23,18 +23,31 @@ namespace Contest
 
 		public IEnumerable<Move> MyMoves()
 		{
-			foreach (Move move in p.CreateZombies())
+			foreach (var move in p.SetSlot2To8192())
 				yield return MakeMyTurn(move);
-			int idx = 0;
+
+			//init healer in slot3
+			foreach (var move in p.CreateHealer())
+				yield return MakeMyTurn(move);
+
+			if (w.me[0].vitality < 32768)
+			{
+				foreach (var m in p.RunHealer())
+					yield return MakeMyTurn(m);
+			}
+
+			foreach (var move in p.CreateZombies())
+				yield return MakeMyTurn(move);
+
 			while (true)
 			{
-				foreach (Move move in p.TaranEmAll())
+				foreach (var move in p.TaranEmAll())
 				{
-					//if (++idx % 200 == 0)
-					//{
-					//    yield return MakeMyTurn(new Move(4, Funcs.Revive));
-					//    yield return MakeMyTurn(new Move(4, Funcs.Zero));
-					//}
+					if (w.me[0].vitality < 32768)
+					{
+						foreach (var m in p.RunHealer())
+							yield return MakeMyTurn(m);
+					}
 					if (w.opponent[255].vitality == 0)
 					{
 						Log("before zombie: w.opponent[0] = " + w.opponent[0]);
@@ -68,7 +81,7 @@ namespace Contest
 		}
 	}
 
-	public static class Extensions
+	public static partial class Extensions
 	{
 		public static void Each<T>(this IEnumerable<T> items, Action<T> action)
 		{

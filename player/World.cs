@@ -179,7 +179,7 @@ namespace Contest
 
 		public void RunMyPlan(string s)
 		{
-			var lines = s.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+			var lines = s.SplitByLineFeeds();
 			foreach (var line in lines)
 			{
 				MyTurn(Move.Parse(line));
