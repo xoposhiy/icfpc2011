@@ -21,9 +21,22 @@ namespace Contest
 			w.OpponentTurn(m);
 		}
 
+		private const int HealerPrototypeSlot = 0;
+		private const int HealerTargetSlot = 1;
+		private const int HealerDamageSlot = 2;
+		private const int AttackerTargetSlot = 3;
+		private const int AttackerDamageSlot = 4;
+		
+		private const int ZombieSlot = 5;
+		private const int HealerHomeSlot = 20;
+		private const int AttackerHomeSlot = 21;
+
 		public IEnumerable<Move> MyMoves()
 		{
-			foreach (var move in p.SetSlot2To8192())
+			var healer_and_zombie_damage = 4096;
+			foreach (var move in p.SetSlotToPowerOf2(HealerDamageSlot, healer_and_zombie_damage))
+				yield return MakeMyTurn(move);
+			foreach (var move in p.SetSlotToPowerOf2(AttackerDamageSlot, 4*4096))
 				yield return MakeMyTurn(move);
 
 			//init healer in slot3
@@ -36,7 +49,7 @@ namespace Contest
 					yield return MakeMyTurn(m);
 			}
 
-			foreach (var move in p.CreateZombies())
+			foreach (var move in p.CreateZombie(ZombieSlot, HealerDamageSlot))
 				yield return MakeMyTurn(move);
 
 			while (true)
@@ -51,11 +64,9 @@ namespace Contest
 					if (w.opponent[255].vitality == 0)
 					{
 						Log("before zombie: w.opponent[0] = " + w.opponent[0]);
-						if (w.opponent[0].vitality >= 32768) yield return MakeMyTurn(new Move(6, Funcs.Zero));
-						else if (w.opponent[0].vitality >= 16384) yield return MakeMyTurn(new Move(5, Funcs.Zero));
-						else if (w.opponent[0].vitality >= 8192)
+						if (w.opponent[0].vitality >= healer_and_zombie_damage)
 						{
-							yield return MakeMyTurn(new Move(4, Funcs.Zero));
+							yield return MakeMyTurn(new Move(ZombieSlot, Funcs.Zero));
 							Log("after zombie: w.opponent[0] = " + w.opponent[0]);
 						}
 					}

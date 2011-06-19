@@ -225,22 +225,19 @@ S 0
 				yield return new Move(Dbl, 2);
 		}
 
-		public IEnumerable<Move> CreateZombies()
+		public IEnumerable<Move> SetSlotToPowerOf2(int slotNo, int valuePower2)
 		{
-			//v[2] = 8192
-			foreach (var m in CreateZombie(4, "dbl(dbl(succ(zero)))")) yield return m;
-			yield return new Move(Dbl, 2); //16384
-			foreach (var m in CreateZombie(5, "succ(dbl(dbl(succ(zero))))")) yield return m;
-			yield return new Move(Dbl, 2); //32768
-			foreach (var m in CreateZombie(6, "dbl(succ(dbl(succ(zero))))")) yield return m;
+			yield return new Move(slotNo, Zero);
+			yield return new Move(Succ, slotNo);
+			for (int i = 1; i < valuePower2; i *= 2)
+				yield return new Move(Dbl, slotNo);
 		}
 
-		private IEnumerable<Move> CreateZombie(int zombieSlotNo, string zombieSlot)
+		public IEnumerable<Move> CreateZombie(int zombieSlotNo, int damageSlot)
 		{
-			const string damageSlot = "dbl(succ(zero))"; //2
-			var payload = string.Format("S(K(help(zero)(zero)))(K(get({0})))", damageSlot);
+			var payload = string.Format("S(K(help(zero)(zero)))(K(get({0})))", damageSlot.ToForm());
 			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
-			var replicatingZombie = string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlot);
+			var replicatingZombie = string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlotNo.ToForm());
 			return ToMoves(ThePlan.MakePlan(zombieSlotNo, replicatingZombie));
 		}
 

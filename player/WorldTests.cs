@@ -20,12 +20,22 @@ namespace Contest
 		}
 
 		[Test]
+		public void FormFromNum()
+		{
+
+			for (int i = 0; i < 10;i++)
+				Console.WriteLine(i + " = " + i.ToForm());
+		}
+		
+		[Test]
 		public void Attacker()
 		{
 			
-			var attacker = CreateDelayedAttacker("zero", "succ(zero)");
+			var attacker = CreateDelayedAttacker("succ(zero)", "zero");
 
-			AddPlan(ThePlan.MakePlan(2, attacker));
+			var attackerPlan = ThePlan.MakePlan(2, attacker);
+			Console.WriteLine(attackerPlan.SplitByLineFeeds().Length);
+			AddPlan(attackerPlan);
 			AddPlan("0 zero");
 			AddPlan("1 zero");
 			AddPlan("succ 1");
@@ -135,27 +145,6 @@ get 1
 			Console.WriteLine(plan);
 		}
 
-		[Test]
-		public void TestPlan2()
-		{
-			AddPlan("0 zero");
-			AddPlan("succ 0");
-			AddPlan("dbl 0");
-			AddPlan("1 zero");
-			AddPlan("succ 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan("dbl 1");
-			AddPlan(ThePlan.MakePlan(3, "(help (get ( succ(zero))) (get ( succ(zero))) (get ( succ (zero)))) "));
-			Run(plan);
-			Console.WriteLine("Plan length: " + plan.Split('\n').Count());
-		}
 
 		private void AddPlan(string s)
 		{
