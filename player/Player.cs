@@ -28,8 +28,8 @@ namespace Contest
 		private const int AttackerDamageSlot = 4;
 		
 		private const int ZombieSlot = 5;
-		private const int HealerHomeSlot = 20;
-		private const int AttackerHomeSlot = 21;
+		private const int AttackerHomeSlot = 6;
+		private const int HealerHomeSlot = 7;
 
 		public IEnumerable<Move> MyMoves()
 		{

@@ -26,6 +26,10 @@ namespace Contest
 			return attack_I_I_D;
 		}
 
-		
+
+		public static string AddSelfReproducing(int slotNo, string delayedValue)
+		{
+			return  string.Format("S(K(S ({0})(get)))(K({1}))", delayedValue, slotNo.ToForm());
+		}
 	}
 }

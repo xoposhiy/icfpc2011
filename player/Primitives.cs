@@ -173,7 +173,7 @@ S 0
 		{
 			if (attackerCreated) return new Move[0];
 			var attack_I_I_D = Form.CreateDelayedAttacker(targetSlot, damageSlot);
-			var plan = ThePlan.MakePlan(slotNo, attack_I_I_D);
+			var plan = ThePlan.MakePlan(slotNo, Form.AddSelfReproducing(slotNo, attack_I_I_D));
 			return ToMoves(plan);
 		}
 
