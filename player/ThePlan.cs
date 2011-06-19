@@ -62,7 +62,15 @@ namespace Contest
 			var app = (App)t;
 			if (plan.Length == 0)
 			{
-				return MakePlan(MakePlan(plan, app.left), app.right);
+				if (app.left is App)
+				{
+					return MakePlan(MakePlan(plan, app.left), app.right);
+				}
+				else
+				{
+					var name = (Name)app.left;
+					return MakePlan(plan, app.right).Concat(new[] { new PlanItem { Card = name.name, ToLeft = true } }).ToArray();
+				}
 			}
 			return 
 				MakePlan(
