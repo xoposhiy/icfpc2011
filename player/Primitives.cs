@@ -191,11 +191,11 @@ S 0
 			}
 		}
 
-		public IEnumerable<Move> AttackEmAll(int attackerSlot, int targetSlot, int damageSlot)
+		public IEnumerable<Move> AttackEmAll(int attackerSlot, int targetSlot, int damageSlot, int firstTarget)
 		{
 			foreach (var m in CreateAttackerIfNeeded(attackerSlot, targetSlot.ToForm(), damageSlot.ToForm()))
 				yield return m;
-			for (var target = 8; target <= 255+8; target++)
+			for (var target = firstTarget; target <= 255 + firstTarget; target++)
 			{
 				foreach (var m in SetSlotTo(targetSlot, target%256)) yield return m;
 				
@@ -268,12 +268,13 @@ S 0
 				yield return new Move(Dbl, slotNo);
 		}
 
-		public IEnumerable<Move> CreateZombie(int zombieSlotNo, int damageSlot)
+		public IEnumerable<Move> CreateZombie(int zombieSlotNo, int tempPayloadSlot, int damageSlot, int slotToAttack)
 		{
-			var payload = string.Format("S(K(help(zero)(zero)))(K(get({0})))", damageSlot.ToForm());
-			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
-			var replicatingZombie = string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlotNo.ToForm());
-			return ToMoves(ThePlan.MakePlan(zombieSlotNo, replicatingZombie));
+			foreach (var m in ToMoves(ThePlan.MakePlan(tempPayloadSlot, Form.CreateUberZombiePayload(damageSlot))))
+				yield return m;
+			foreach (var m in ToMoves(ThePlan.MakePlan(zombieSlotNo, Form.Create4Zombie(zombieSlotNo, tempPayloadSlot, slotToAttack))))
+				yield return m;
+			yield return new Move(Funcs.Put, tempPayloadSlot);
 		}
 
 		public IEnumerable<Move> RunHealer(int healerHomeSlot)

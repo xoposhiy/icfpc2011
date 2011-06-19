@@ -28,6 +28,44 @@ namespace Contest
 		}
 
 		[Test]
+		public void Bug()
+		{
+			world.RunMyForm(0, "S (S) (I)");
+			world.RunMyPlan("0 I");
+		}
+
+		[Test]
+		public void HeallerBug()
+		{
+			world.me[1].value = new Num(0);
+			world.me[2].value = new Num(8192);
+			var healer = CreateHealer(1.ToForm(), 2.ToForm(), 0.ToForm());
+			var p = ThePlan.MakePlan(0, healer);
+			foreach (var line in Primitives.ToMoves(p).Select(m => m.ToOrgString()))
+			{
+				Console.Write(line);
+			}
+			Console.WriteLine();
+			Run(p);
+			Run("0 zero");
+			Console.WriteLine(world.me[0]);
+		}		
+		
+		[Test]
+		public void HeallerBug2()
+		{
+			var healer = AddCycling("inc", "zero");
+			var p = ThePlan.MakePlan(0, healer);
+			foreach (var line in Primitives.ToMoves(p).Select(m => m.ToOrgString()))
+			{
+				Console.Write(line);
+			}
+			Run(p);
+			Run("0 zero");
+			Console.WriteLine(world.me[0]);
+		}
+
+		[Test]
 		public void Healer()
 		{
 			var healer = CreateHealer(1.ToForm(), 2.ToForm(), 0.ToForm());
@@ -35,7 +73,8 @@ namespace Contest
 			Console.WriteLine(healerPlan.SplitByLineFeeds().Length);
 			Console.WriteLine(healerPlan);
 			AddPlan("1 zero");//target = 0
-			AddPlan(ThePlan.MakePlan(2, 9500.ToForm()));//set damage
+			world.me[1].value = new Num(0);
+			world.me[2].value = new Num(8192);
 			AddPlan(healerPlan);//healer constructed in slot 0
 			AddPlan("7 zero");
 			AddPlan("get 7");//clone healer
@@ -84,6 +123,31 @@ namespace Contest
 		}
 
 		[Test]
+		public void MassRevive()
+		{
+			var hostingSlotNo = 10;
+			//var payload = "S(S(revive inc)(inc))";
+			var payload = "revive";
+			//plan = ThePlan.MakePlan(hostingSlotNo, AddIncCycling(hostingSlotNo, payload));
+			plan = ThePlan.MakePlan(hostingSlotNo, AddSelfReproducing(hostingSlotNo, Form.DelayApplication(Form.Repeat("revive", "inc", 50), "zero", false, false)));
+			Console.WriteLine(plan.SplitByLineFeeds().Count());
+			Console.WriteLine(plan);
+
+			Run(plan);
+			for (int i = 0; i < 255; i++)
+			{
+				world.me[i].vitality = 0;
+			}
+			world.me[0].vitality = 0;
+			world.me[hostingSlotNo].vitality = 10;
+			Run(hostingSlotNo + " zero");
+			Run(hostingSlotNo + " zero");
+			Run(hostingSlotNo + " zero");
+			Run(hostingSlotNo + " zero");
+			Run(hostingSlotNo + " zero");
+		}
+
+		[Test]
 		public void UberZombie()
 		{
 			world.opponent[0].vitality = 65535;
@@ -94,9 +158,10 @@ namespace Contest
 			plan = ThePlan.MakePlan(3, uberZombiePayload);
 			world.RunMyPlan(plan, silent:true);
 			Console.WriteLine(plan.SplitByLineFeeds().Count());
-			//Console.WriteLine(plan);
+			Console.WriteLine(plan);
+			return;
 
-			var zombie4 = Create4Zombie(5, 3);
+			var zombie4 = Create4Zombie(5, 3, 0);
 			plan = ThePlan.MakePlan(5, zombie4);
 			Console.WriteLine(plan.SplitByLineFeeds().Count());
 			Console.WriteLine(plan);

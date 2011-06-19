@@ -65,43 +65,45 @@ namespace Contest
 			return s;
 		}
 
-		public static string CreateUberZombie(int zombieSlot, int zombieDamageSlot)
+		public static string Repeat(string first, string payload, int count)
 		{
-			var damage = string.Format("get({0})", zombieDamageSlot.ToForm());
-			var payload = DelayApplication("help(zero)(zero)", damage, false, false);
-			var payload4 = Repeat(payload, 4);
-			var zombie = string.Format("S(K(zombie (zero))) ( K({0}) )", payload4);
-			return string.Format("S(K(S ({0})(get)))(K({1}))", zombie, zombieSlot.ToForm());
+			string s = first;
+			for (int i = 0; i < count; i++)
+				s = string.Format("S({0})({1})", s, payload);
+			return s;
 		}
 
 		public static string CreateUberZombiePayload(int zombieDamageSlot)
 		{
 			var damage = string.Format("get({0})", zombieDamageSlot.ToForm());
-			var payload = DelayApplication("help(zero)(zero)", damage, false, false);
-			return Repeat(payload, 1);
+			return DelayApplication("help(zero)(zero)", damage, false, false);
 		}
 
-		public static string MakeDelayed0Zombie(string payload)
+		public static string MakeDelayed0Zombie(string payload, int slotToAttack)
 		{
-			return string.Format("S(K(zombie (zero))) ( K({0}) )", payload);
+			return string.Format("S(K(zombie ({0}))) ( K({1}) )", slotToAttack.ToForm(), payload);
 		}
 
-		public static string Create4Zombie(int zombieSlot, int payloadSlot)
+		public static string Create4Zombie(int zombieSlot, int payloadSlot, int slotToAttack)
 		{
 			var payload = string.Format("get({0})", payloadSlot.ToForm());
 			var payload4 = Repeat(payload, 4);
-			var delayedZombie = MakeDelayed0Zombie(payload4);
+			var delayedZombie = MakeDelayed0Zombie(payload4, slotToAttack);
 			return AddSelfReproducing(zombieSlot, delayedZombie);
 		}
 
 		/// <summary>
 		/// AddIncCycling(hostingSlotNo, payload) (n) -> payload(n), payload(n+1), ...
 		/// </summary>
-		public static string AddIncCycling(int slotWithHostingSlotNo, string payload)
+		public static string AddIncCycling(int hostingSlotNo, string payload)
 		{
-			var hostingSlotNo = "get(" + slotWithHostingSlotNo.ToForm() + ")";
-			var delayGetSource = DelayApplication("get", hostingSlotNo, false, false);
+			var delayGetSource = DelayApplication("get", hostingSlotNo.ToForm(), false, false);
 			return string.Format("S({0})(S({1})(succ))", payload, delayGetSource);
+		}
+
+		protected static string Sequence(string first, string second)
+		{
+			return DelayApplication(first, second, true, true);
 		}
 	}
 }

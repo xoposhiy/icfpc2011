@@ -387,7 +387,11 @@ namespace Contest
 
 		public Value Reduce(Slot[] me, Slot[] opponent, ref int applicationsDone, bool zombieMode)
 		{
-			if (ArgsNeeded > 0) return this;
+			if (ArgsNeeded > 0)
+			{
+				applicationsDone++;
+				return this;
+			}
 			var fun = f;
 			var args = new List<Value> { arg };
 			while (fun is Application)
@@ -428,7 +432,7 @@ namespace Contest
 		public Value Reduce(Slot[] me, Slot[] opponent, Value[] args, ref int applicationsDone, bool zombieMode)
 		{
 			if (args.Length != ArgsNeeded) throw new Exception("Bug in code!");
-			if (applicationsDone >= 1000) throw new GameError("Too many applications");
+			if (applicationsDone >= 1000) throw new GameError("Too many applications " + applicationsDone);
 			applicationsDone++;
 			//r.Append(" " + ToString());
 			var res = DoReduce(me, opponent, args, ref applicationsDone, zombieMode);

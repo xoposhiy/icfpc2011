@@ -14,7 +14,6 @@ namespace Contest
 		public Player()
 		{
 			p = new Primitives(w);
-//			Debugger.Launch();
 		}
 
 		public void HisMove(Move m)
@@ -33,6 +32,10 @@ namespace Contest
 		private const int HealerHomeSlot = 7;
 		private const int Const255Slot = 8;
 		private const int Healer255HomeSlot = 9;
+		private const int ReviverHomeSlot = 10;
+		
+		
+		private const int FirstSlotToAttack = 4;
 
 		private const int HealerAndZombieDamage = 2*4096;
 		private const int AttackerDamage = 4*4096;
@@ -61,12 +64,19 @@ namespace Contest
 
 			foreach (var move in HealAllIfNeeded()) yield return move;
 
-//			foreach (var move in p.CreateZombie(ZombieSlot, HealerDamageSlot))
-//				yield return move;
+			const int TempZombiePayloadSlot = AttackerTargetSlot;
+			foreach (var move in p.CreateZombie(ZombieSlot, TempZombiePayloadSlot, HealerDamageSlot, FirstSlotToAttack))
+			{
+				yield return move;
+				foreach (var hm in HealAllIfNeeded())
+					yield return hm;
+			}
+
+			var reviveMoves = GetReviverMoves().GetEnumerator();
 
 			while (true)
 			{
-				foreach (var move in p.AttackEmAll(AttackerHomeSlot, AttackerTargetSlot, AttackerDamageSlot))
+				foreach (var move in p.AttackEmAll(AttackerHomeSlot, AttackerTargetSlot, AttackerDamageSlot, FirstSlotToAttack))
 				{
 					bool wasMove = false;
 					if (move != null)
@@ -74,15 +84,33 @@ namespace Contest
 						yield return move;
 						wasMove = true;
 					}
-//					foreach (var zm in MayBeFireZombie()) yield return zm;
 					foreach (var hm in HealAllIfNeeded())
 					{
 						wasMove = true;
 						yield return hm;
 					}
-					if (!wasMove) yield return new Move(Funcs.I, 0); //Мы подохли. Делаем тупой ход, чтобы не получить Time Limit!
+					foreach (var zm in FireZombieIfPossible()) yield return zm;
+					if (!wasMove)
+					{
+						Log("me[0] = " + w.me[0]);
+						reviveMoves.MoveNext();
+						yield return reviveMoves.Current;
+					}
 				}
 			}
+		}
+
+		
+		private IEnumerable<Move> GetReviverMoves()
+		{
+			string plan;
+				plan = ThePlan.MakePlan(ReviverHomeSlot,
+											 Form.AddSelfReproducing(ReviverHomeSlot,
+																	 Form.DelayApplication(Form.Repeat("revive", "inc", 50), "zero",
+																						   false, false)));
+			foreach (var m in Primitives.ToMoves(plan)) yield return m;
+
+			while(true) yield return new Move(ReviverHomeSlot, Funcs.Zero);
 		}
 
 		private IEnumerable<Move> HealAllIfNeeded()
@@ -98,20 +126,25 @@ namespace Contest
 			if (w.me[patient].vitality <= 32768 && w.me[patient].vitality > HealerAndZombieDamage)
 			{
 				foreach (var m in p.SetSlotTo(HealerTargetSlot, patient)) yield return m;
+				Log("Before heal " + patient + " :" + w.me[patient].vitality);
 				foreach (var m in p.RunHealer(HealerHomeSlot)) yield return m;
+				Log("After heal " + patient + " :" + w.me[patient].vitality);
 			}
 		}
 
-		private IEnumerable<Move> MayBeFireZombie()
+		private IEnumerable<Move> FireZombieIfPossible()
 		{
 			// Условие применимости: есть дохлая в 255, в 0-ой достаточно жизни и наш зомби-слот жив
-			if (w.opponent[255].vitality == 0 && w.opponent[0].vitality >= HealerAndZombieDamage&& w.me[ZombieSlot].vitality > 0)
+			var zombieTargetIsDead = w.opponent[255 - FirstSlotToAttack].vitality == 0;
+			var zombieWouldBeHarmfull = w.opponent[0].vitality >= HealerAndZombieDamage;
+			var zombieSlotIsAlive = w.me[ZombieSlot].vitality > 0;
+			if (zombieTargetIsDead && zombieWouldBeHarmfull && zombieSlotIsAlive)
 				yield return new Move(ZombieSlot, Funcs.Zero);
 		}
 
 		private void Log(string message)
 		{
-			//File.AppendAllText("zombies.txt", message+ Environment.NewLine);
+			//File.AppendAllText("error.txt", message+ Environment.NewLine);
 		}
 
 		private Move MakeMyTurn(Move move)
