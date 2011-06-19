@@ -26,10 +26,25 @@ namespace Contest
 			return attack_I_I_D;
 		}
 
-
 		public static string AddSelfReproducing(int slotNo, string delayedValue)
 		{
 			return  string.Format("S(K(S ({0})(get)))(K({1}))", delayedValue, slotNo.ToForm());
+		}
+
+		public static string CreateHealer(string targetSlot, string damageSlot, string protoSlot)
+		{
+			var delayedGetTarget = DelayApplication("get", targetSlot, false, false);
+			var healing = DelayApplication("S (help) (I)", delayedGetTarget, false, true);
+			var getDamage = string.Format("get({0})", damageSlot);
+			healing = DelayApplication(healing, getDamage, true, false);
+			return AddCycling(healing, protoSlot);
+		}
+
+		public static string AddCycling(string payload, string protoSlot)
+		{
+			var cycling = DelayApplication(payload, "S (get) (I)", true, true);
+			cycling = DelayApplication(cycling, protoSlot, false, false);
+			return cycling;
 		}
 	}
 }

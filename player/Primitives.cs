@@ -221,14 +221,6 @@ S 0
 0 I
 ";
 
-		public IEnumerable<Move> SetSlot2To8192()
-		{
-			yield return new Move(2, Zero);
-			yield return new Move(Succ, 2); //1
-			for (int i = 0; i < 13; i++)
-				yield return new Move(Dbl, 2);
-		}
-
 		public IEnumerable<Move> SetSlotToPowerOf2(int slotNo, int valuePower2)
 		{
 			yield return new Move(slotNo, Zero);
@@ -245,32 +237,20 @@ S 0
 			return ToMoves(ThePlan.MakePlan(zombieSlotNo, replicatingZombie));
 		}
 
-		public IEnumerable<Move> RunHealer()
+		public IEnumerable<Move> RunHealer(int healerHomeSlot)
 		{
-			//v[0] = Healer
-			yield return new Move(7, Zero);
-			yield return new Move(Get, 7);	//slot[7]=slot[0]
-			yield return new Move(7, Zero);	//run!
+			//slot[0] = Healer
+			//slot[healerHomeSlot] = I
+			yield return new Move(healerHomeSlot, Zero);
+			yield return new Move(Get, healerHomeSlot);		//slot[healerHomeSlot] = slot[0]
+			yield return new Move(healerHomeSlot, Zero);	//run!
 		}
 
-		public IEnumerable<Move> CreateHealer()
+		public IEnumerable<Move> CreateHealer(int healerProtoSlot, int healerTargetSlot, int healerDamageSlot)
 		{
-			return CreateHealer(0, "zero");
-		}
-
-		public IEnumerable<Move> CreateHealer(int healerSlotNo, string healerSlot)
-		{
-			return ToMoves(GetHealerPlan(healerSlotNo, healerSlot));
-		}
-
-		public static string GetHealerPlan(int healerSlotNo, string healerSlot)
-		{
-			//v[2] = 8192
-			const string damageSlot = "dbl(succ(zero))"; //2
-			var healer = string.Format("S(K(help(zero)(zero)))(K(get({0})))", damageSlot);
-			healer = string.Format("S ({0}) (S(get)(I))", healer);
-			healer = string.Format("S (K({0})) (K({1}))", healer, healerSlot);
-			return ThePlan.MakePlan(healerSlotNo, healer);
+			var healer = Form.CreateHealer(healerTargetSlot.ToForm(), healerDamageSlot.ToForm(), healerProtoSlot.ToForm());
+			var plan = ThePlan.MakePlan(healerProtoSlot, healer);
+			return ToMoves(plan);
 		}
 	}
 }

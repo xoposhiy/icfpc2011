@@ -26,6 +26,22 @@ namespace Contest
 			for (int i = 0; i < 10;i++)
 				Console.WriteLine(i + " = " + i.ToForm());
 		}
+
+		[Test]
+		public void Healer()
+		{
+			var healer = CreateHealer(1.ToForm(), 2.ToForm(), 0.ToForm());
+			var healerPlan = ThePlan.MakePlan(0, healer);
+			Console.WriteLine(healerPlan);
+			Console.WriteLine(healerPlan.SplitByLineFeeds().Length);
+			AddPlan("1 zero");//target = 0
+			AddPlan(ThePlan.MakePlan(2, 9500.ToForm()));//set damage
+			AddPlan(healerPlan);//healer constructed in slot 0
+			AddPlan("7 zero");
+			AddPlan("get 7");//clone healer
+			AddPlan("7 zero");//run healer
+			Run(plan);
+		}
 		
 		[Test]
 		public void Attacker()
